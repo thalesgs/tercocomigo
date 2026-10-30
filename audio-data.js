@@ -1,0 +1,25 @@
+/* Áudios gravados do Terço Comigo: nome do trecho do roteiro -> arquivo */
+window.TERCO_AUDIO={
+"abertura": "audio/abertura.mp3",
+"agradecimento": "audio/agradecimento.mp3",
+"ave-maria": "audio/ave-maria.mp3",
+"ave-maria-1": "audio/ave-maria-1.mp3",
+"ave-maria-2": "audio/ave-maria-2.mp3",
+"creio": "audio/creio.mp3",
+"deus-santo": "audio/deus-santo.mp3",
+"encerramento": "audio/encerramento.mp3",
+"eterno-pai": "audio/eterno-pai.mp3",
+"gloria": "audio/gloria.mp3",
+"gloria-1": "audio/gloria-1.mp3",
+"gloria-2": "audio/gloria-2.mp3",
+"intencao-alavanca": "audio/intencao-alavanca.mp3",
+"jesus-eu-confio": "audio/jesus-eu-confio.mp3",
+"o-meu-jesus": "audio/o-meu-jesus.mp3",
+"oferecimento": "audio/oferecimento.mp3",
+"pai-nosso": "audio/pai-nosso.mp3",
+"pai-nosso-1": "audio/pai-nosso-1.mp3",
+"pai-nosso-2": "audio/pai-nosso-2.mp3",
+"pela-sua-dolorosa-paixao": "audio/pela-sua-dolorosa-paixao.mp3",
+"salve-rainha": "audio/salve-rainha.mp3",
+"sinal-da-cruz": "audio/sinal-da-cruz.mp3"
+};

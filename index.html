@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Reze o terço guiado, ofereça por quem você ama e some com a sua comunidade.">
+<meta name="theme-color" content="#f4ecda">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Terço Comigo">
+<meta property="og:title" content="Terço Comigo">
+<meta property="og:description" content="Reze o terço guiado e ofereça por quem você ama.">
+<meta property="og:image" content="https://tercocomigo.com.br/og.png">
+<meta property="og:url" content="https://tercocomigo.com.br/">
+<meta property="og:type" content="website">
+<title>Terço Comigo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
+<style>
+/* Layout: página de missal no celular. Moldura com fio duplo, rubricas em vermelho, texto rezado em preto,
+   fita marcadora na cor do mistério. Três abas: Rezar, Alavancas, Perfil. */
+:root{
+  --paper:#f4ecda; --leaf:#fbf6ea; --ink:#231c14; --ink-soft:#6b5e4c;
+  --rubric:#a3221b; --gold:#a87f2c; --rule:#d8c9a8; --ribbon:#2f4f8f; --hl:#efd99b;
+  --display:"Cinzel","Trajan Pro",Georgia,serif; --text:"EB Garamond",Garamond,Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#17130e; --leaf:#201a13; --ink:#ede3cc; --ink-soft:#a99b83;
+  --rubric:#e2725f; --gold:#d6b061; --rule:#3d3326; --hl:#7a5c1e; color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#17130e; --leaf:#201a13; --ink:#ede3cc; --ink-soft:#a99b83;
+  --rubric:#e2725f; --gold:#d6b061; --rule:#3d3326; --hl:#7a5c1e; color-scheme:dark}
+html,body{height:100%}
+html{font-size:calc(16px * var(--scale,1))}
+body{background:var(--paper);color:var(--ink);font-family:var(--text);font-size:1.125rem}
+.app{position:relative;max-width:500px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:14px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 100px}
+.ribbon{position:absolute;top:0;right:max(28px,calc(env(safe-area-inset-right,0px) + 28px));width:16px;height:70px;background:var(--ribbon);
+  clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);transition:background .4s}
+header{display:flex;flex-direction:column;align-items:center;gap:2px;padding-top:6px}
+.brand{font-family:var(--display);font-weight:700;font-size:1.35rem;letter-spacing:.14em;color:var(--ink)}
+.brand b{color:var(--rubric);font-weight:700}
+.day{font-style:italic;color:var(--ink-soft);font-size:.95rem}
+nav.tabs{display:flex;justify-content:center;gap:22px;border-block:1px solid var(--rule);padding-block:8px}
+nav.tabs button{font:500 .78rem var(--display);letter-spacing:.16em;text-transform:uppercase;background:none;border:0;color:var(--ink-soft);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent}
+nav.tabs button.on{color:var(--rubric);border-bottom-color:var(--rubric)}
+.view{display:flex;flex-direction:column;gap:14px}
+.sets{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.sets button{font:500 .72rem var(--display);letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;border-radius:2px;border:1px solid var(--rule);background:transparent;color:var(--ink-soft);cursor:pointer}
+.sets button .dur{display:block;font:italic 400 .82rem var(--text);letter-spacing:0;text-transform:none;opacity:.8;margin-top:2px}
+.prece{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.sets button.on{border-color:var(--rubric);color:var(--rubric);background:var(--leaf)}
+.offer{border:1px solid var(--rubric);background:var(--leaf);padding:10px 14px;font-size:.98rem;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.offer em{color:var(--rubric)}
+.audio{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.audio button{font:500 .72rem var(--display);letter-spacing:.12em;text-transform:uppercase;padding:9px 12px;border:1px solid var(--ink-soft);background:transparent;color:var(--ink);cursor:pointer;border-radius:2px}
+.audio button.on{background:var(--ink);color:var(--paper)}
+select,input,textarea{font:1rem var(--text);padding:8px;border:1px solid var(--rule);background:var(--leaf);color:var(--ink);border-radius:2px;min-width:0}
+.audio select{flex:1 1 100px;font-size:.9rem}
+.small{font-size:.85rem;color:var(--ink-soft);font-style:italic}
+.audio .small{flex-basis:100%}
+.beads{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 0}
+.beads::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;background:var(--ink-soft);opacity:.5}
+.b{position:relative;width:12px;height:12px;border-radius:50%;border:1.5px solid var(--ink-soft);background:var(--paper);transition:transform .2s,background .2s}
+.b.big{width:18px;height:18px}
+.b.done{background:var(--ink);border-color:var(--ink)}
+.b.now{background:var(--rubric);border-color:var(--rubric);transform:scale(1.35)}
+.meta{display:flex;justify-content:space-between;font:500 .7rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.page{position:relative;background:var(--leaf);padding:26px 22px;display:flex;flex-direction:column;gap:12px;flex:1;
+  outline:1px solid var(--rubric);outline-offset:-8px;box-shadow:inset 0 0 0 11px var(--leaf),inset 0 0 0 12px var(--rule)}
+.page.tap{cursor:pointer}
+.rub{font-style:italic;color:var(--rubric);font-size:.95rem;margin:0}
+.page h2{font-family:var(--display);font-weight:500;font-size:1.55rem;letter-spacing:.04em;line-height:1.2;margin:0;text-wrap:balance}
+.page h2::before{content:"✠ ";color:var(--rubric)}
+.oratio{line-height:1.6;margin:0;white-space:pre-line;font-size:1.12rem}
+.oratio::first-letter{font-family:var(--display);font-weight:700;color:var(--rubric);float:left;font-size:3.3em;line-height:.82;padding:6px 8px 0 0}
+.count{display:flex;align-items:center;gap:14px;border-block:1px solid var(--rule);padding-block:8px}
+.num{font-family:var(--display);font-weight:700;font-size:2.8rem;line-height:1;color:var(--rubric);font-variant-numeric:tabular-nums;min-width:1.6em;text-align:center}
+.of{display:flex;flex-direction:column;gap:6px;flex:1}
+.of span{font-style:italic;color:var(--ink-soft);font-size:.95rem}
+.dots{display:flex;gap:4px}
+.dots i{flex:1;height:7px;border:1px solid var(--ink-soft);border-radius:1px}
+.dots i.done{background:var(--ink);border-color:var(--ink)}
+.dots i.now{background:var(--rubric);border-color:var(--rubric)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font:500 .8rem var(--display);letter-spacing:.14em;text-transform:uppercase;padding:15px 16px;border-radius:2px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--paper)}
+.btn.red{background:var(--rubric);border-color:var(--rubric);color:var(--leaf)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--ink-soft)}
+.btn.slim{padding:7px 10px}
+.btn:disabled{opacity:.4;cursor:default}
+.grow{flex:1}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--rubric);outline-offset:2px}
+.end{align-items:center;text-align:center}
+.end img{width:100%;max-width:280px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.list{display:flex;flex-direction:column;border-top:1px solid var(--rule)}
+.item{display:flex;flex-direction:column;gap:2px;padding:12px 2px;border:0;border-bottom:1px solid var(--rule);background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.item strong{font-weight:600;font-size:1.05rem}
+.item span{font-style:italic;color:var(--ink-soft);font-size:.9rem}
+h3{font:500 .75rem var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--rubric);margin:6px 0 0}
+form{display:flex;flex-direction:column;gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.95rem;color:var(--ink-soft);font-style:italic}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid var(--rule)}
+.stat div{padding:12px 4px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.stat div+div{border-left:1px solid var(--rule)}
+.stat b{font-family:var(--display);font-size:1.6rem;color:var(--rubric);font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--ink-soft);font-style:italic}
+.me{display:flex;gap:14px;align-items:center}
+.me img{width:56px;height:56px;border-radius:50%;border:1px solid var(--rule)}
+.me strong{font-family:var(--display);font-weight:500;font-size:1.2rem;letter-spacing:.04em}
+.faces{display:flex;flex-wrap:wrap;gap:4px}
+.faces img{width:28px;height:28px;border-radius:50%;border:1px solid var(--rule)}
+.letter{border-left:2px solid var(--rubric);padding:4px 0 4px 12px;display:flex;flex-direction:column;gap:2px}
+.letter span{font-size:.85rem;color:var(--ink-soft);font-style:italic}
+.letter q{font-style:italic}
+.share{display:flex;flex-direction:column;gap:8px;border:1px dashed var(--gold);padding:12px}
+.share input{width:100%;font-size:.85rem}
+.checks{display:flex;flex-direction:column;gap:8px;text-align:left;width:100%}
+.checks label{flex-direction:row;align-items:center;gap:10px;font-style:normal;color:var(--ink)}
+.checks label.col{flex-direction:column;align-items:stretch;font-style:italic;color:var(--ink-soft)}
+.ad{position:fixed;left:0;right:0;bottom:0;background:var(--leaf);border-top:1px solid var(--rule);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.ad div{max-width:500px;margin:0 auto;display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--ink-soft)}
+.ad b{font:500 .6rem var(--display);border:1px solid var(--rule);padding:2px 5px;letter-spacing:.1em}
+.com{text-align:center;font-style:italic;color:var(--ink-soft);font-size:.95rem;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.com b{font-family:var(--display);font-style:normal;color:var(--rubric);font-size:1.15rem}
+.setrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-block:6px}
+.seg{display:flex;border:1px solid var(--rule)}
+.seg button{background:none;border:0;padding:8px 12px;font:500 .72rem var(--display);letter-spacing:.08em;color:var(--ink-soft);cursor:pointer;min-width:44px}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.tbl{overflow-x:auto;border-top:1px solid var(--rule)}
+.tbl table{border-collapse:collapse;width:100%;font-size:.92rem;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{padding:9px 8px;border-bottom:1px solid var(--rule);text-align:left;white-space:nowrap}
+.tbl th{font:500 .62rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--rubric)}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(20,15,10,.55);display:flex;align-items:flex-end;justify-content:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.modal[hidden]{display:none}
+.modal .page{width:100%;max-width:500px;max-height:100%;overflow-y:auto;flex:none}
+.modal .page>*{flex-shrink:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.9rem;padding:7px 11px;border:1px solid var(--rule);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer}
+.chip.on{background:var(--rubric);border-color:var(--rubric);color:var(--leaf)}
+.plist{display:flex;flex-direction:column;border-top:1px solid var(--rule);max-height:240px;overflow-y:auto}
+.plist button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:10px 6px;border:0;border-bottom:1px solid var(--rule);background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.plist button.on{background:var(--paper);box-shadow:inset 3px 0 0 var(--rubric)}
+.plist span{font-size:.85rem;font-style:italic;color:var(--ink-soft)}
+.linkbtn{background:none;border:0;padding:4px 0;font:inherit;font-size:.9rem;font-style:italic;color:var(--rubric);text-decoration:underline;cursor:pointer;align-self:center}
+.com small{display:block;font-size:.82rem;margin-top:2px}
+.grace{border:1px solid var(--gold);background:var(--paper);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+[hidden]{display:none!important}
+#setlist{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+#sair{font-size:.8rem;padding:0}
+.oratio.cont::first-letter{float:none;font:inherit;color:inherit;padding:0}
+.page.prayer{box-sizing:border-box}
+/* Texto da oração: cabe na tela e rola por dentro; com o áudio, a frase atual acende e um fundo acompanha a palavra falada */
+/* O cartão da oração não rola: se o texto não couber, a letra diminui um pouco até caber dentro da moldura */
+.page.prayer{max-height:min(54vh,560px);overflow:hidden}
+.karaoke .w{opacity:.32;transition:opacity .35s ease,background-color .2s ease;border-radius:3px}
+.karaoke .w.read{opacity:.85}
+.karaoke .w.ph{opacity:1}
+.karaoke .w.cur{opacity:1;background:var(--hl);box-shadow:0 0 0 2px var(--hl)}
+/* Com o áudio, o texto rola dentro do cartão: a frase atual fica sempre na primeira linha e as já rezadas sobem e somem em degradê, sem passar da moldura */
+.karaoke.page{overflow:hidden}
+.karaoke #txt{position:relative;flex:1;min-height:0;overflow:hidden;padding-top:1.4em;padding-bottom:60vh;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 1.4em,#000 calc(100% - 1.6em),transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 1.4em,#000 calc(100% - 1.6em),transparent 100%)}
+#adj{flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#lemb{flex-wrap:wrap}
+/* Terço desenhado: painel escuro de propósito nos dois temas, como uma capela à noite */
+.rwrap{background:#0d0b09;outline:1px solid var(--rule);display:flex;justify-content:center;padding-block:10px}
+.rosary{display:block;height:clamp(130px,20vh,220px);width:auto;max-width:100%}
+.rosary .bd{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.3);transition:opacity .6s ease,transform .6s cubic-bezier(.2,1.4,.4,1)}
+.rosary .bd.on{opacity:1;transform:none}
+.rosary .ch{stroke:#8d7d5f;stroke-width:1.1}
+.rosary .bd.now circle,.rosary .bd.now ellipse,.rosary .bd.now .cz{fill:url(#rg-g);filter:drop-shadow(0 0 5px #f3c86a)}
+.rosary.done circle{fill:url(#rg-g)}
+.rosary.done{animation:shine 2.6s ease-in-out infinite alternate}
+@keyframes shine{from{filter:drop-shadow(0 0 0 rgba(243,200,106,0))}to{filter:drop-shadow(0 0 9px rgba(243,200,106,.75))}}
+@media (prefers-reduced-motion:reduce){.b,.ribbon,.rosary .bd{transition:none}.rosary.done{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="ribbon" id="ribbon" aria-hidden="true"></div>
+  <header><div class="brand"><b>✠</b> TERÇO COMIGO</div><div class="day" id="day"></div></header>
+  <nav class="tabs" id="tabs">
+    <button data-tab="rezar" class="on">Rezar</button>
+    <button data-tab="alav">Alavancas</button>
+    <button data-tab="perfil">Perfil</button>
+    <button data-tab="painel" id="tab-painel" hidden>Painel</button>
+  </nav>
+
+  <section class="view" id="v-rezar">
+    <div class="com" id="com" hidden></div>
+    <div class="offer" id="resume" hidden></div>
+    <div class="offer" id="lemb" hidden></div>
+    <div class="sets" id="sets"></div>
+    <div class="offer" id="offer" hidden></div>
+    <div class="audio">
+      <button id="listen" aria-pressed="false">Ouvir</button>
+      <button id="aa" aria-label="Mudar o tamanho da letra">Aa</button>
+      <button id="adjbtn" aria-expanded="false" aria-controls="adj">Ajustes</button>
+      <div id="adj" hidden>
+      <select id="voice" aria-label="Voz"></select>
+      <select id="rate" aria-label="Velocidade"><option value="0.8">Devagar</option><option value="1" selected>Normal</option><option value="1.2">Rápido</option></select>
+      <select id="mode" aria-label="No anúncio do mistério"><option value="pass" selected>Mistério com passagem bíblica</option><option value="sil">Mistério em silêncio</option></select>
+      <select id="resp" aria-label="Como rezar com a voz gravada"><option value="todo" selected>Voz gravada reza tudo</option><option value="resp">Eu respondo a segunda parte</option></select>
+      <span class="small" id="ahint">Voz do próprio celular, só para teste. Com o áudio ligado, o terço avança sozinho e a tela não apaga.</span>
+      </div>
+    </div>
+    <div class="rwrap"><svg class="rosary" id="rosary" viewBox="0 0 300 380" aria-hidden="true"></svg></div>
+    <div class="meta"><span id="stage"></span><span class="row" style="gap:12px;align-items:center"><span id="pct"></span><button class="linkbtn" id="sair" hidden>Sair do terço</button></span></div>
+    <article class="page" id="card" aria-live="polite"></article>
+    <div class="row" id="nav">
+      <button class="btn ghost" id="prev" aria-label="Voltar">‹</button>
+      <button class="btn grow" id="next">Próxima</button>
+    </div>
+  </section>
+
+  <section class="view" id="v-alav" hidden></section>
+  <section class="view" id="v-perfil" hidden>
+    <article class="page"><p class="rub">Leitura</p>
+      <div class="setrow"><span>Tamanho da letra</span><div class="seg" id="seg-fs"><button data-fs="0.9" style="font-size:.65rem" aria-label="Letra pequena">A</button><button data-fs="1" aria-label="Letra normal">A</button><button data-fs="1.15" style="font-size:.9rem" aria-label="Letra grande">A</button><button data-fs="1.3" style="font-size:1.05rem" aria-label="Letra muito grande">A</button></div></div>
+      <div class="setrow"><span>Tema</span><div class="seg" id="seg-th"><button data-th="light">Claro</button><button data-th="auto">Auto</button><button data-th="dark">Escuro</button></div></div>
+      <p class="small">A escolha fica salva neste aparelho. No terço, o botão Aa também muda a letra.</p></article>
+    <div id="perfil-body" class="view"></div>
+  </section>
+  <section class="view" id="v-painel" hidden></section>
+</div>
+<div class="ad"><div><b>ANÚNCIO</b><span>Espaço de publicidade discreto (exemplo)</span></div></div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mtitle"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="fb.js"></script>
+<script>
+const P={
+ abre:["Abertura","Quem puxa o terço abre a oração e o oferece.","Vamos rezar o terço. Coloquemo-nos na presença de Deus.\nSenhor, nós vos oferecemos este terço pelas nossas intenções, pela Igreja e por todos os que pediram as nossas orações."],
+ cruz:["Sinal da Cruz","Faz-se o sinal da cruz.","Pelo sinal da Santa Cruz, livrai-nos, Deus, Nosso Senhor, dos nossos inimigos.\nEm nome do Pai, do Filho e do Espírito Santo. Amém."],
+ credo:["Creio","Segurando o crucifixo, reza-se o Creio.","Creio em Deus Pai todo-poderoso, criador do céu e da terra; e em Jesus Cristo, seu único Filho, Nosso Senhor, que foi concebido pelo poder do Espírito Santo; nasceu da Virgem Maria; padeceu sob Pôncio Pilatos, foi crucificado, morto e sepultado; desceu à mansão dos mortos; ressuscitou ao terceiro dia; subiu aos céus, está sentado à direita de Deus Pai todo-poderoso, donde há de vir a julgar os vivos e os mortos. Creio no Espírito Santo, na Santa Igreja Católica, na comunhão dos santos, na remissão dos pecados, na ressurreição da carne, na vida eterna. Amém."],
+ pai:["Pai-Nosso","Na conta grande, reza-se o Pai-Nosso.","Pai nosso que estais nos céus, santificado seja o vosso nome; venha a nós o vosso reino; seja feita a vossa vontade, assim na terra como no céu.\nO pão nosso de cada dia nos dai hoje; perdoai-nos as nossas ofensas, assim como nós perdoamos a quem nos tem ofendido; e não nos deixeis cair em tentação, mas livrai-nos do mal. Amém."],
+ ave:["Ave-Maria","Nas contas pequenas, reza-se a Ave-Maria.","Ave Maria, cheia de graça, o Senhor é convosco; bendita sois vós entre as mulheres, e bendito é o fruto do vosso ventre, Jesus.\nSanta Maria, Mãe de Deus, rogai por nós, pecadores, agora e na hora de nossa morte. Amém."],
+ gloria:["Glória","Reza-se o Glória ao Pai.","Glória ao Pai, ao Filho e ao Espírito Santo. Como era no princípio, agora e sempre. Amém."],
+ jesus:["Ó meu Jesus","Jaculatória pedida por Nossa Senhora em Fátima.","Ó meu Jesus, perdoai-nos, livrai-nos do fogo do inferno, levai as almas todas para o céu e socorrei principalmente as que mais precisarem."],
+ agrad:["Agradecimento","Terminados os mistérios, agradece-se a Nossa Senhora.","Infinitas graças vos damos, Soberana Rainha, pelos benefícios que todos os dias recebemos de vossas mãos liberais. Dignai-vos, agora e para sempre, tomar-nos debaixo do vosso poderoso amparo e, para mais vos obrigar, vos saudamos com uma Salve-Rainha."],
+ eterno:["Eterno Pai","Na conta grande.","Eterno Pai, eu Vos ofereço o Corpo e Sangue, Alma e Divindade de Vosso diletíssimo Filho, Nosso Senhor Jesus Cristo, em expiação dos nossos pecados e dos do mundo inteiro."],
+ paixao:["Pela Sua dolorosa Paixão","Nas contas pequenas, dez vezes.","Pela Sua dolorosa Paixão, tende misericórdia de nós e do mundo inteiro."],
+ santo:["Deus Santo","Ao final das cinco dezenas, três vezes.","Deus Santo, Deus Forte, Deus Imortal, tende piedade de nós e do mundo inteiro."],
+ confio:["Jesus, eu confio em Vós","Para concluir.","Ó Sangue e Água que jorrastes do Coração de Jesus como fonte de misericórdia para nós, eu confio em Vós.\nJesus, eu confio em Vós."],
+ salve:["Salve-Rainha","Ao final dos cinco mistérios, reza-se a Salve-Rainha.","Salve, Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva; a vós suspiramos, gemendo e chorando neste vale de lágrimas. Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei; e depois deste desterro mostrai-nos Jesus, bendito fruto do vosso ventre, ó clemente, ó piedosa, ó doce sempre Virgem Maria.\nRogai por nós, santa Mãe de Deus, para que sejamos dignos das promessas de Cristo. Amém."]
+};
+const M={
+ Gozosos:["A Anunciação do Anjo a Maria","A Visitação de Maria a Isabel","O Nascimento de Jesus em Belém","A Apresentação de Jesus no Templo","A Perda e o Encontro de Jesus no Templo"],
+ Dolorosos:["A Agonia de Jesus no Horto","A Flagelação de Jesus","A Coroação de Espinhos","Jesus carrega a Cruz até o Calvário","A Crucifixão e Morte de Jesus"],
+ Gloriosos:["A Ressurreição de Jesus","A Ascensão de Jesus ao Céu","A Vinda do Espírito Santo","A Assunção de Maria ao Céu","A Coroação de Maria"],
+ Luminosos:["O Batismo de Jesus no Jordão","As Bodas de Caná","O Anúncio do Reino de Deus","A Transfiguração de Jesus","A Instituição da Eucaristia"]
+};
+const PASS={
+ Gozosos:[["Lc 1,26-38","O anjo Gabriel foi enviado por Deus a Nazaré, a uma jovem chamada Maria. Ele a saudou como cheia de graça e anunciou que ela daria à luz um filho, a quem chamaria Jesus. Maria, mesmo sem compreender tudo, respondeu com fé: eis aqui a serva do Senhor, faça-se em mim segundo a tua palavra."],
+  ["Lc 1,39-56","Maria partiu apressada para as montanhas da Judeia, para servir sua prima Isabel, já idosa e grávida. Ao ouvir a saudação de Maria, o menino saltou de alegria no ventre de Isabel, que exclamou: bendita és tu entre as mulheres. E Maria louvou a Deus, porque ele olhou para a humildade de sua serva."],
+  ["Lc 2,1-20","Por causa de um recenseamento, José e Maria foram a Belém. Não havia lugar para eles na hospedaria, e Maria deu à luz o seu filho, envolveu-o em faixas e o deitou numa manjedoura. Um anjo anunciou aos pastores uma grande alegria: hoje nasceu para vós um Salvador."],
+  ["Lc 2,22-40","Quarenta dias depois do nascimento, Maria e José levaram o menino ao Templo de Jerusalém para apresentá-lo ao Senhor. O velho Simeão tomou Jesus nos braços e louvou a Deus, porque seus olhos tinham visto a salvação. E disse a Maria que uma espada atravessaria a sua alma."],
+  ["Lc 2,41-52","Aos doze anos, Jesus foi com seus pais a Jerusalém para a festa da Páscoa e, na volta, ficou no Templo sem que eles percebessem. Depois de três dias de angústia, Maria e José o encontraram entre os doutores da Lei, ouvindo e perguntando. Jesus respondeu que devia estar na casa de seu Pai."]],
+ Luminosos:[["Mt 3,13-17","Jesus veio da Galileia até o rio Jordão para ser batizado por João. João hesitou, mas Jesus insistiu. Quando saiu da água, os céus se abriram, o Espírito de Deus desceu sobre ele como uma pomba, e uma voz do céu disse: este é o meu Filho amado, em quem me agrado."],
+  ["Jo 2,1-12","Houve um casamento em Caná da Galileia, e Jesus, sua mãe e seus discípulos estavam lá. Quando faltou vinho, Maria disse a Jesus: eles não têm mais vinho. E disse aos que serviam: fazei tudo o que ele vos disser. Jesus transformou a água em vinho, e esse foi o primeiro de seus sinais."],
+  ["Mc 1,14-15","Depois que João foi preso, Jesus foi para a Galileia anunciando a Boa Nova de Deus. Ele dizia: o tempo se cumpriu e o Reino de Deus está próximo; convertei-vos e crede no Evangelho. E acolhia os pecadores, curava os doentes e perdoava a quem o procurava."],
+  ["Lc 9,28-36","Jesus levou Pedro, Tiago e João ao alto de um monte para rezar. Enquanto rezava, seu rosto mudou de aparência e suas roupas ficaram brancas e resplandecentes. Moisés e Elias conversavam com ele. Uma nuvem os envolveu, e dela saiu uma voz: este é o meu Filho, o escolhido; escutai-o."],
+  ["Lc 22,14-20","Na noite em que ia ser entregue, Jesus sentou-se à mesa com os apóstolos para a ceia da Páscoa. Tomou o pão, deu graças, partiu-o e lhes deu, dizendo: isto é o meu corpo, que é dado por vós. Depois tomou o cálice e disse: este cálice é a nova aliança no meu sangue. E pediu: fazei isto em memória de mim."]],
+ Dolorosos:[["Mt 26,36-46","Depois da ceia, Jesus foi com os discípulos a um lugar chamado Getsêmani. Levou consigo Pedro e os dois filhos de Zebedeu e começou a sentir tristeza e angústia. Disse a eles: minha alma está triste até a morte; ficai aqui e vigiai comigo. Adiantou-se um pouco, prostrou-se com o rosto em terra e rezou: meu Pai, se possível, afasta de mim este cálice; porém, não seja como eu quero, mas como tu queres."],
+  ["Mc 15,1-15; Jo 19,1","Jesus foi entregue a Pôncio Pilatos. Mesmo sem encontrar nele culpa alguma, Pilatos quis agradar à multidão: soltou Barrabás e mandou açoitar Jesus. O Senhor suportou os golpes em silêncio, carregando em seu corpo as nossas dores."],
+  ["Mt 27,27-31","Os soldados levaram Jesus para o pátio do palácio e reuniram toda a tropa. Tiraram suas roupas e o cobriram com um manto vermelho. Trançaram uma coroa de espinhos, puseram-na em sua cabeça e uma vara em sua mão. Ajoelhavam-se diante dele, zombando: salve, rei dos judeus."],
+  ["Jo 19,16-17; Lc 23,26-28","Jesus saiu carregando a cruz em direção ao Calvário. No caminho, os soldados obrigaram Simão de Cirene, que voltava do campo, a carregar a cruz atrás de Jesus. Uma grande multidão o seguia, e mulheres choravam por ele. Jesus voltou-se e disse: não choreis por mim; chorai por vós e por vossos filhos."],
+  ["Lc 23,33-46; Jo 19,25-27","No Calvário, crucificaram Jesus entre dois malfeitores. Ele rezou: Pai, perdoa-lhes, porque não sabem o que fazem. Junto à cruz estava Maria, sua mãe, e Jesus a confiou ao discípulo amado: eis aí a tua mãe. Por fim, clamou em alta voz: Pai, em tuas mãos entrego o meu espírito. E, dizendo isso, expirou."]],
+ Gloriosos:[["Mt 28,1-10","Passado o sábado, ao amanhecer do primeiro dia da semana, Maria Madalena e a outra Maria foram ver o sepulcro. Um anjo do Senhor removeu a pedra e lhes disse: não tenhais medo; ele não está aqui, ressuscitou, como havia dito. Elas correram, com temor e grande alegria, para anunciar aos discípulos."],
+  ["At 1,6-11","Quarenta dias depois da Ressurreição, Jesus prometeu aos apóstolos: recebereis a força do Espírito Santo e sereis minhas testemunhas até os confins da terra. Dito isso, foi elevado diante deles, e uma nuvem o encobriu. Dois homens vestidos de branco disseram: este Jesus voltará do mesmo modo como o vistes subir ao céu."],
+  ["At 1,14; 2,1-4","Os apóstolos estavam reunidos em oração com Maria, a mãe de Jesus. No dia de Pentecostes, veio do céu um ruído como de um vento forte, e apareceram línguas como de fogo, que pousaram sobre cada um deles. Todos ficaram cheios do Espírito Santo e começaram a anunciar as maravilhas de Deus."],
+  ["Tradição da Igreja; Pio XII, 1950","A Assunção não é narrada nos Evangelhos, mas a Igreja a professa desde os primeiros séculos, e o Papa Pio XII a proclamou como dogma em 1950: terminado o curso de sua vida terrena, Maria foi levada em corpo e alma à glória do céu. Aquela que gerou o Autor da vida não conheceu a corrupção do sepulcro."],
+  ["Ap 12,1","No livro do Apocalipse, São João viu um grande sinal no céu: uma mulher vestida de sol, com a lua debaixo dos pés e uma coroa de doze estrelas sobre a cabeça. A Igreja contempla em Maria a Rainha do céu e da terra, que reina junto de seu Filho e intercede por todos nós."]]
+};
+const modeOf=()=>$("mode").value;
+/* Creio e Salve-Rainha são longos: aparecem em duas metades, uma depois da outra, para caberem na tela. */
+const HALVES={
+ credo:["Creio em Deus Pai todo-poderoso, criador do céu e da terra; e em Jesus Cristo, seu único Filho, Nosso Senhor, que foi concebido pelo poder do Espírito Santo; nasceu da Virgem Maria; padeceu sob Pôncio Pilatos, foi crucificado, morto e sepultado;",
+  "desceu à mansão dos mortos; ressuscitou ao terceiro dia; subiu aos céus, está sentado à direita de Deus Pai todo-poderoso, donde há de vir a julgar os vivos e os mortos. Creio no Espírito Santo, na Santa Igreja Católica, na comunhão dos santos, na remissão dos pecados, na ressurreição da carne, na vida eterna. Amém."],
+ salve:["Salve, Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva; a vós suspiramos, gemendo e chorando neste vale de lágrimas.",
+  "Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei; e depois deste desterro mostrai-nos Jesus, bendito fruto do vosso ventre, ó clemente, ó piedosa, ó doce sempre Virgem Maria.\nRogai por nós, santa Mãe de Deus, para que sejamos dignos das promessas de Cristo. Amém."]};
+const txtOf=st=>st.k==="abre"?P.abre[2]+(oferta?"\nRezamos este terço em alavanca pelo pedido dos nossos irmãos.":""):st.half!==undefined&&HALVES[st.k]?HALVES[st.k][st.half]:P[st.k][2];
+const RIBBON={Gozosos:"#2f4f8f",Dolorosos:"#5b2a6e",Gloriosos:"#b08a2e",Luminosos:"#c9b98d","Misericórdia":"#9b2335"};
+const MIS="Misericórdia",ORDF=["Primeira","Segunda","Terceira","Quarta","Quinta"];
+const BY_DAY=["Gloriosos","Gozosos","Dolorosos","Gloriosos","Luminosos","Dolorosos","Gozosos"];
+const DAYS=["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"];
+const ORD=["Primeiro","Segundo","Terceiro","Quarto","Quinto"];
+const BASE=location.origin+location.pathname;
+const MOV=[["terco-dos-homens","Terço dos Homens"],["maes-que-oram","Mães que Oram pelos Filhos"],["rcc","Renovação Carismática Católica"],["cursilho","Cursilho"],["legiao-de-maria","Legião de Maria"],["apostolado-da-oracao","Apostolado da Oração"],["ecc","ECC – Encontro de Casais com Cristo"],["equipes-de-nossa-senhora","Equipes de Nossa Senhora"],["pastoral-familiar","Pastoral Familiar"],["pastoral-da-crianca","Pastoral da Criança"],["pastoral-da-saude","Pastoral da Saúde"],["pastoral-da-juventude","Pastoral da Juventude"],["catequese","Catequese"],["vicentinos","Vicentinos (SSVP)"],["ministros","Ministros da Eucaristia"],["outro","Outro movimento"]];
+const UFS=["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today=new Date().getDay();
+let set=BY_DAY[today], steps=[], i=0, oferta=null, registered=false, porQuem="";
+
+/* ---------- Abas ---------- */
+let tab="rezar";
+function showTab(t){tab=t;["rezar","alav","perfil","painel"].forEach(k=>$("v-"+k).hidden=k!==t);track(x=>{x.abas=x.abas||{};x.abas[t]=(x.abas[t]||0)+1});
+  [...$("tabs").children].forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
+  if(t!=="rezar")stopListen();
+  if(t==="alav")renderAlav(); if(t==="perfil")renderPerfil(); if(t==="painel")renderPainel();}
+$("tabs").onclick=e=>{const t=e.target.dataset.tab;if(t)showTab(t)};
+
+/* ---------- Terço ---------- */
+function build(){
+  if(set===MIS){/* Terço da Misericórdia: mesmas contas do terço, com as orações de Santa Faustina */
+    steps=[{k:"abre",d:-1},{k:"cruz",d:-1},{k:"pai",d:-1,r:"Na primeira conta, reza-se o Pai-Nosso."},{k:"ave",d:-1,n:1,of:1,r:"Na conta seguinte, reza-se a Ave-Maria."},{k:"credo",d:-1,half:0,r:"Reza-se o Creio."},{k:"credo",d:-1,half:1}];
+    for(let d=0;d<5;d++){steps.push({k:"eterno",d,bead:0});for(let n=0;n<10;n++)steps.push({k:"paixao",d,n:n+1,of:10,bead:n+1})}
+    for(let n=0;n<3;n++)steps.push({k:"santo",d:5,n:n+1,of:3});
+    steps.push({k:"confio",d:5});steps.push({k:"fim",d:5});$("ribbon").style.background=RIBBON[set];return}
+  steps=[{k:"abre",d:-1},{k:"cruz",d:-1},{k:"credo",d:-1,half:0},{k:"credo",d:-1,half:1},{k:"pai",d:-1,r:"Na primeira conta grande, reza-se o Pai-Nosso."}];
+  for(let n=0;n<3;n++)steps.push({k:"ave",d:-1,n:n+1,of:3,r:"Nas três contas pequenas, pela fé, pela esperança e pela caridade."});
+  steps.push({k:"gloria",d:-1});
+  M[set].forEach((m,d)=>{
+    steps.push({k:"anuncio",d,title:m});
+    steps.push({k:"pai",d,bead:0});
+    for(let n=0;n<10;n++)steps.push({k:"ave",d,n:n+1,of:10,bead:n+1});
+    steps.push({k:"gloria",d});steps.push({k:"jesus",d});
+  });
+  steps.push({k:"agrad",d:5});
+  steps.push({k:"salve",d:5,half:0});steps.push({k:"salve",d:5,half:1});
+  steps.push({k:"fim",d:5});
+  $("ribbon").style.background=RIBBON[set];
+}
+/* Escolha do terço: "Terço do dia" já vem com o mistério de hoje e abre a lista dos quatro; ao lado, a Misericórdia. */
+function sets(){const day=BY_DAY[today],other=set!==MIS&&set!==day;
+  $("sets").innerHTML=`<button id="dayset" class="${set!==MIS?"on":""}" aria-expanded="false" aria-controls="setlist">${other?`Mistérios ${set}`:`Terço do dia · ${day}`} ▾<span class="dur">cerca de 20 min</span></button><button data-s="${MIS}" class="${set===MIS?"on":""}">${MIS}<span class="dur">cerca de 8 min</span></button>
+  <div id="setlist" hidden>${Object.keys(M).map(s=>`<button data-s="${s}" class="${s===set?"on":""}">Mistérios ${s}${s===day?" · hoje":""}</button>`).join("")}</div>`}
+$("sets").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.id==="dayset"){const l=$("setlist");l.hidden=!l.hidden;b.setAttribute("aria-expanded",String(!l.hidden));return}
+  const s=b.dataset.s;if(!s)return;set=s;stopListen();restart()};
+$("sair").onclick=()=>{clearProg();pausedByHide=false;stopListen();oferta=null;restart();window.scrollTo(0,0)};
+/* ---------- Continuar de onde parei ----------
+   A cada oração o ponto do terço fica guardado no aparelho. Se o app fechar, travar ou o celular desligar,
+   ao abrir de novo aparece o cartão para retomar. Vale por 36 horas. */
+const PROG="terco-prog";
+function loadProg(){try{const p=JSON.parse(localStorage.getItem(PROG)||"null");return p&&Date.now()-p.em<36*36e5?p:null}catch(e){return null}}
+function clearProg(){try{localStorage.removeItem(PROG)}catch(e){}}
+function saveProg(){const st=steps[i];if(!praying()||!st)return;
+  const nome=st.k==="anuncio"?"anúncio do mistério":(P[st.k]?P[st.k][0]:"")+(st.of>1?`, ${st.n}ª de ${st.of}`:"");
+  try{localStorage.setItem(PROG,JSON.stringify({set,i,n:steps.length,oferta,em:Date.now(),label:`${$("stage").textContent} · ${nome}`}))}catch(e){}}
+function renderResume(){const el=$("resume");if(!el)return;const p=praying()?null:loadProg();
+  if(!p){el.hidden=true;return}
+  el.hidden=false;el.innerHTML=`<span>Você parou no meio de um terço: <em></em>.</span><span class="row"><button class="btn red slim" id="rgo">Continuar</button><button class="btn ghost slim" id="rno">Começar de novo</button></span>`;
+  el.querySelector("em").textContent=p.label||`Mistérios ${p.set}`;
+  $("rgo").onclick=resumir;$("rno").onclick=()=>{clearProg();renderResume();track(x=>{x.descartouRetomar=(x.descartouRetomar||0)+1})}}
+function resumir(){const p=loadProg();if(!p)return renderResume();
+  set=p.set;registered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();
+  if(steps.length!==p.n||p.i<1||p.i>=steps.length-1){clearProg();restart();return}
+  i=p.i;oferta=p.oferta||null;sets();render();track(x=>{x.retomou=(x.retomou||0)+1});window.scrollTo(0,0)}
+function restart(){i=0;registered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();sets();render()}
+
+/* ---------- Terço desenhado ----------
+   Peças em ordem de reza: 0 crucifixo, 1 conta grande, 2-4 três pequenas, 5 medalha,
+   6-60 o círculo (cada dezena: 1 grande + 10 pequenas), saindo da medalha e subindo pelo lado direito de quem olha a tela. */
+const RG=(()=>{const it=[{t:"cruz",x:150,y:342},{t:"big",x:150,y:302}];[288,275,262].forEach(y=>it.push({t:"small",x:150,y}));it.push({t:"medal",x:150,y:230});
+  const seq=[];for(let d=0;d<5;d++){seq.push("big");for(let k=0;k<10;k++)seq.push("small")}
+  const w=seq.map(s=>s==="big"?1.9:1),W=w.reduce((a,b)=>a+b,0),cx=150,cy=118,R=98,a0=Math.PI/2-.3,a1=Math.PI/2-2*Math.PI+.3;let acc=0;
+  seq.forEach((s,k)=>{const a=a0+(a1-a0)*(acc+w[k]/2)/W;acc+=w[k];it.push({t:s,x:+(cx+R*Math.cos(a)).toFixed(1),y:+(cy+R*Math.sin(a)).toFixed(1)})});return it})();
+function beadShape(b){if(b.t==="cruz")return`<g class="cz" fill="url(#rg-g)"><rect x="146" y="318" width="8" height="52" rx="2"/><rect x="133" y="332" width="34" height="8" rx="2"/></g>`;
+  if(b.t==="medal")return`<ellipse cx="${b.x}" cy="${b.y}" rx="9" ry="11" fill="url(#rg-g)"/><ellipse cx="${b.x}" cy="${b.y}" rx="5.5" ry="7" fill="none" stroke="#7a5a1c" stroke-width="1"/>`;
+  return`<circle cx="${b.x}" cy="${b.y}" r="${b.t==="big"?7.5:4.6}" fill="url(#rg-b)"/>`}
+function buildRosary(){const s=$("rosary");let h=`<defs><radialGradient id="rg-b" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fffaf0"/><stop offset=".6" stop-color="#e2d5b8"/><stop offset="1" stop-color="#9d8c69"/></radialGradient><radialGradient id="rg-g" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff3c9"/><stop offset=".55" stop-color="#e2b75a"/><stop offset="1" stop-color="#9a7020"/></radialGradient></defs>`;
+  RG.forEach((b,k)=>{const p=k===1?{x:150,y:318}:RG[k-1];h+=`<g class="bd" data-k="${k}">${k?`<line class="ch" x1="${p.x}" y1="${p.y}" x2="${b.x}" y2="${b.y}"/>`:""}${beadShape(b)}</g>`});
+  const l=RG[RG.length-1],m=RG[5];h+=`<g class="bd" data-k="close"><line class="ch" x1="${l.x}" y1="${l.y}" x2="${m.x}" y2="${m.y}"/></g>`;
+  s.innerHTML=h;s.dataset.built="1"}
+function curItem(st){if(set===MIS){if(st.d<0)return{abre:0,cruz:0,pai:1,ave:2,credo:st.half?4:3}[st.k];if(st.d<5)return 6+st.d*11+(st.k==="paixao"?st.n:0);return 999}
+  if(st.d<0)return{abre:0,cruz:0,credo:0,pai:1,ave:1+(st.n||0),gloria:5}[st.k];
+  if(st.d<5){const base=6+st.d*11;if(st.k==="ave")return base+st.n;if(st.k==="gloria"||st.k==="jesus")return base+10;return base}
+  return 999}
+function beads(st){const s=$("rosary");if(!s.dataset.built)buildRosary();const cur=curItem(st),done=cur===999;
+  s.querySelectorAll(".bd").forEach(g=>{const k=g.dataset.k==="close"?(done?0:1e9):+g.dataset.k;g.classList.toggle("on",k<=cur);g.classList.toggle("now",k===cur)});
+  s.classList.toggle("done",done)}
+function drawRosary(g,ox,oy,sc){const P=b=>[ox+b.x*sc,oy+b.y*sc];g.save();g.strokeStyle="#8a7a5e";g.lineWidth=2.2;
+  const seg=(a,b)=>{const [x1,y1]=P(a),[x2,y2]=P(b);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke()};
+  RG.forEach((b,k)=>{if(k)seg(k===1?{x:150,y:318}:RG[k-1],b)});seg(RG[RG.length-1],RG[5]);
+  RG.forEach(b=>{const [x,y]=P(b);
+    if(b.t==="cruz"){g.fillStyle="#a3221b";g.fillRect(ox+146*sc,oy+318*sc,8*sc,52*sc);g.fillRect(ox+133*sc,oy+332*sc,34*sc,8*sc);return}
+    if(b.t==="medal"){g.fillStyle="#a87f2c";g.beginPath();g.ellipse(x,y,9*sc,11*sc,0,0,Math.PI*2);g.fill();return}
+    const r=(b.t==="big"?7.5:4.6)*sc,gr=g.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);gr.addColorStop(0,"#6b5a42");gr.addColorStop(1,"#231c14");g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()});
+  g.restore()}
+/* Salvar ou compartilhar a imagem: no app do Claude no celular abre as opções de compartilhar; no navegador, baixa o arquivo. */
+let dlCap;
+async function getDl(){if(dlCap===undefined){try{dlCap=window.claude&&window.claude.use?await window.claude.use("downloads"):null}catch(e){dlCap=null}}return dlCap}
+function dataUrlToBlob(u){const bin=atob(u.split(",")[1]),a=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)a[k]=bin.charCodeAt(k);return new Blob([a],{type:"image/png"})}
+/* No celular, a folha de compartilhar entrega a imagem como foto: no WhatsApp ela aparece direto na conversa.
+   Onde isso não existir, a imagem é salva e o aviso explica como mandar como foto. */
+const desktop=()=>{try{return matchMedia("(pointer:fine)").matches&&!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)}catch(e){return false}};
+async function shareImg(img,name,btn,note){
+  if(img&&img.src){try{const f=new File([dataUrlToBlob(img.src)],name,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){btn.disabled=true;
+      try{await navigator.share({files:[f]});btn.disabled=false;note.textContent="Imagem enviada.";track(x=>{x.compartilhou=(x.compartilhou||0)+1});return}
+      catch(e){btn.disabled=false;if(e&&e.name==="AbortError")return}}}catch(e){}}
+  const d=await getDl();
+  if(!d&&img&&img.src){try{const a=document.createElement("a");a.href=URL.createObjectURL(dataUrlToBlob(img.src));a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}catch(e){}
+    note.textContent=desktop()?"Imagem baixada. Para ela aparecer como foto no WhatsApp, arraste a imagem acima para a conversa, ou use o clipe › Fotos e vídeos (não Documento).":"Se a imagem não abriu, toque e segure nela e escolha Salvar em Fotos. Depois envie pela galeria.";track(x=>{x.compartilhou=(x.compartilhou||0)+1});return}
+  if(!d||!img||!img.src){note.textContent=desktop()?"Arraste a imagem acima direto para a conversa do WhatsApp.":"Toque e segure a imagem e escolha Salvar em Fotos.";return}
+  btn.disabled=true;
+  try{await d.save({filename:name,data:dataUrlToBlob(img.src)});note.textContent=desktop()?"Imagem salva. Para ela aparecer como foto no WhatsApp, arraste a imagem acima para a conversa, ou use o clipe › Fotos e vídeos (não Documento).":"Imagem pronta. Se o WhatsApp mandar como arquivo, salve em Fotos e envie pela galeria.";track(x=>{x.compartilhou=(x.compartilhou||0)+1})}
+  catch(e){const c=e&&e.code;note.textContent=c==="declined"?"":c==="rate_limited"?"Já há uma janela aberta. Feche-a e tente de novo.":"Não deu para salvar por aqui. Toque e segure a imagem para salvar."}
+  btn.disabled=false}
+function renderOffer(){
+  if(steps[i]&&steps[i].k==="abre"&&$("txt"))$("txt").innerHTML=wordsHTML(txtOf(steps[i]));
+  const a=oferta&&alavs.find(x=>x.id===oferta);
+  $("offer").hidden=!a;
+  if(a){$("offer").innerHTML=`<span>Em alavanca por <em></em></span><button class="btn ghost slim" id="nooffer">Tirar</button>`;
+    $("offer").querySelector("em").textContent=a.titulo;$("nooffer").onclick=()=>{oferta=null;renderOffer();if(steps[i]&&steps[i].k==="abre")fitCard()}}
+}
+function render(){
+  const st=steps[i], card=$("card"); stepAt=Date.now(); card.scrollTop=0;
+  beads(st); renderOffer();
+  $("sets").hidden=praying();$("sair").hidden=!praying();document.querySelector("header").hidden=praying();renderCom();renderLemb();renderResume();
+  $("stage").textContent=st.d<0?"Orações iniciais":st.d<5?(set===MIS?`${ORDF[st.d]} dezena · Misericórdia`:`${ORD[st.d]} mistério · ${set}`):"Encerramento";
+  $("pct").textContent=Math.round(i/(steps.length-1)*100)+"%";
+  $("prev").disabled=i===0;
+  trackStep();
+  if(st.k==="fim")clearProg();else saveProg();
+  if(st.k==="fim"){$("nav").hidden=true;contarComunidade();finish();if(db&&uid&&!perfil.perguntou&&!perfil.paroquia&&!askedNow){askedNow=true;setTimeout(openModal,1800)}return}
+  $("nav").hidden=false;
+  if(st.k==="anuncio"){
+    card.className="page tap prayer";
+    card.innerHTML=`<p class="rub">Anuncia-se o ${ORD[st.d].toLowerCase()} mistério ${set.slice(0,-1).toLowerCase()+"o"} e faz-se breve silêncio.</p><h2>${st.title}</h2>${modeOf()==="pass"?`<p class="rub">Leitura · ${PASS[set][st.d][0]}</p><p class="oratio" id="txt">${wordsHTML(PASS[set][st.d][1])}</p>`:`<p class="oratio">Façamos alguns instantes de silêncio, contemplando este mistério e oferecendo esta dezena pelas nossas intenções.</p>`}`;
+    $("next").textContent="Começar a dezena";fitCard();return;
+  }
+  const [t,r0]=P[st.k],x=txtOf(st),cont=st.half===1,r=cont?"":r0;
+  card.className="page tap prayer";
+  card.innerHTML=`${(st.r||r)?`<p class="rub">${st.r||r}</p>`:""}${st.d>=0&&st.d<5?`<p class="small" style="margin:0">${M[set]?M[set][st.d]:`${ORDF[st.d]} dezena`}</p>`:""}<h2>${t}${cont?` <span class="small">(continuação)</span>`:""}</h2><p class="oratio${cont?" cont":""}" id="txt">${wordsHTML(x)}</p>`;
+  $("next").textContent="Próxima";fitCard();
+}
+/* O cartão da oração ocupa só o espaço que sobra na tela, acima dos botões e do anúncio; o texto rola por dentro. */
+function fitCard(){const c=$("card");if(!c||!c.classList.contains("prayer")){if(c){c.style.maxHeight="";c.style.height=""}return}
+  const top=c.getBoundingClientRect().top+window.scrollY,h=window.innerHeight-top-128;c.style.maxHeight=Math.max(230,h)+"px";
+  c.style.height=c.classList.contains("karaoke")?c.style.maxHeight:"";fitText()}
+function fitText(){const c=$("card"),o=$("txt");if(!c||!o)return;o.style.fontSize="";let fs=parseFloat(getComputedStyle(o).fontSize),n=0;
+  while(c.scrollHeight>c.clientHeight+1&&fs>=16&&n<20){fs-=1;o.style.fontSize=fs+"px";n++}
+  /* Letra no mínimo de 15 px: se ainda assim não couber, o cartão cresce e a página rola, sem o texto passar da moldura */
+  if(c.scrollHeight>c.clientHeight+1){o.style.fontSize="";c.style.maxHeight="none";c.style.height=""}}
+window.addEventListener("resize",()=>fitCard());
+async function finish(){
+  const card=$("card"); card.className="page end";
+  const mine=alavs.filter(a=>perfil.minhas.includes(a.id));
+  const can=db&&uid;
+  card.innerHTML=`<p class="rub">Terço concluído</p><h2>Que Nossa Senhora interceda por você</h2>
+   <div id="reg" class="checks">${can&&!registered?`
+     ${mine.length?`<p class="rub" style="text-align:center">Oferecer este terço em alavanca por:</p>${mine.map(a=>`<label><input type="checkbox" value="${a.id}" ${a.id===oferta?"checked":""}> <span data-t="${a.id}"></span></label>`).join("")}`:`<p class="small" style="text-align:center">Entre numa alavanca para oferecer seus terços por um pedido.</p>`}
+     <label class="col">Uma palavra para quem pediu (opcional)<textarea id="msg" rows="2" maxlength="200" placeholder="Rezei com muito carinho por vocês."></textarea></label>
+     <button class="btn red" id="doreg">Registrar meu terço</button>`:registered?`<p class="small" style="text-align:center">Terço registrado. Sua oração foi somada.</p>`:""}</div>
+   <p class="small" id="comfim"></p>
+   <div class="checks"><label class="col">Rezou por alguém? Escreva o nome e mande o card para essa pessoa<input id="porquem" maxlength="40" placeholder="Ex.: Dona Maria"></label><button class="btn ghost" id="gencard">Colocar o nome no card</button></div>
+   <img id="shot" alt="Card para compartilhar">
+   <button class="btn red" id="shareshot">Compartilhar imagem</button><p class="small" id="sharenote">Salve a imagem e poste nos Stories ou mande no WhatsApp.</p>
+   <button class="btn ghost" id="again">Rezar de novo</button>
+   ${can?`<button class="linkbtn" id="vermes">Ver ${mesTitulo().replace("Meu ","meu ")}</button>`:""}`;
+  card.querySelectorAll("[data-t]").forEach(s=>{const a=alavs.find(x=>x.id===s.dataset.t);s.textContent=a?a.titulo:""});
+  $("again").onclick=restart;
+  $("shareshot").onclick=()=>shareImg($("shot"),porQuem?"rezei-por-voce.png":"terco-comigo.png",$("shareshot"),$("sharenote"));
+  if($("vermes"))$("vermes").onclick=()=>{showTab("perfil");setTimeout(()=>{const e=$("mescard");if(e)e.scrollIntoView({behavior:"smooth"})},500)};
+  $("porquem").value=porQuem;
+  $("gencard").onclick=async()=>{porQuem=$("porquem").value.trim();track(x=>{x.rezeiPorVoce=(x.rezeiPorVoce||0)+1});if(porQuem&&db&&uid)mesInc("porVoce");const a=alavs.find(x=>x.id===oferta);$("shot").src=await makeCard(a&&a.titulo,porQuem)};
+  renderCom();
+  const doreg=$("doreg"); if(doreg)doreg.onclick=registrar;
+  const first=alavs.find(a=>a.id===oferta);
+  const src=await makeCard(first&&first.titulo,porQuem); if($("shot"))$("shot").src=src;
+}
+async function registrar(){
+  const btn=$("doreg");btn.disabled=true;btn.textContent="Registrando…";
+  const ids=[...document.querySelectorAll("#reg input[type=checkbox]:checked")].map(c=>c.value);
+  const msg=($("msg").value||"").trim().slice(0,200);
+  try{
+    for(const aid of ids){await db.collection(`alavancas/${aid}/oracoes`).doc(rid()).set({uid,em:Date.now(),misterios:set,msg})}
+    const t=ymd(new Date()),y=ymd(new Date(Date.now()-864e5));
+    const streak=perfil.lastDay===t?(perfil.streak||1):perfil.lastDay===y?(perfil.streak||0)+1:1;
+    const ofs={...(perfil.ofertas||{})};ids.forEach(x=>{ofs[x]=t});
+    await savePerfil({total:(perfil.total||0)+1,streak,lastDay:t,ofertas:ofs});
+    track(x=>{x.registrados=(x.registrados||0)+1});if(ids.length)mesInc("alavancas");
+    registered=true; if(ids.length)oferta=ids[0]; finish();
+  }catch(e){btn.disabled=false;btn.textContent="Tentar de novo";
+    $("reg").insertAdjacentHTML("beforeend",`<p class="small">${e&&e.code==="invalid_argument"?"Sua conta só pode ver esta página. Peça acesso de Colaborador a quem compartilhou.":"Não foi possível registrar agora. Verifique a conexão e tente de novo."}</p>`)}
+}
+function wrap(g,text,x,y,max,lh){const w=text.split(" ");let line="",yy=y;for(const p of w){const t=line?line+" "+p:p;if(g.measureText(t).width>max&&line){g.fillText(line,x,yy);line=p;yy+=lh}else line=t}g.fillText(line,x,yy);return yy}
+async function makeCard(alavTitulo,nome){
+  try{await Promise.all([document.fonts.load("700 80px Cinzel"),document.fonts.load("italic 80px 'EB Garamond'")])}catch(e){}
+  const c=document.createElement("canvas");c.width=1080;c.height=1920;const g=c.getContext("2d");
+  g.fillStyle="#f4ecda";g.fillRect(0,0,1080,1920);
+  g.strokeStyle="#a3221b";g.lineWidth=4;g.strokeRect(60,60,960,1800);g.lineWidth=1.5;g.strokeRect(78,78,924,1764);
+  g.fillStyle=RIBBON[set];g.beginPath();g.moveTo(860,60);g.lineTo(920,60);g.lineTo(920,330);g.lineTo(890,300);g.lineTo(860,330);g.closePath();g.fill();
+  g.textAlign="center";g.fillStyle="#a3221b";g.font="700 150px Cinzel, serif";g.fillText("✠",540,330);
+  g.fillStyle="#231c14";g.font="700 58px Cinzel, serif";g.fillText("HOJE REZEI O TERÇO",540,470);
+  drawRosary(g,540-150*1.75,500,1.75);g.textAlign="center";
+  g.fillStyle="#a3221b";g.font=set===MIS?"italic 80px 'EB Garamond', serif":"italic 92px 'EB Garamond', serif";g.fillText(set===MIS?"Terço da Misericórdia":"Mistérios "+set,540,1220);
+  g.fillStyle="#6b5e4c";g.font="italic 48px 'EB Garamond', serif";
+  g.fillText(new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"}),540,1300);
+  if(nome){g.fillStyle="#a3221b";g.font="500 36px Cinzel, serif";g.fillText("REZEI ESTE TERÇO POR VOCÊ",540,1440);
+    g.fillStyle="#231c14";g.font="italic 84px 'EB Garamond', serif";wrap(g,nome,540,1550,820,90)}
+  else if(alavTitulo){g.fillStyle="#a3221b";g.font="500 36px Cinzel, serif";g.fillText("EM ALAVANCA DE ORAÇÃO POR",540,1450);
+    g.fillStyle="#231c14";g.font="italic 62px 'EB Garamond', serif";wrap(g,alavTitulo,540,1540,820,74)}
+  const cp=minhaPar(),cm=cp?sumG("p:"+cp.id):comMonth();if(cm>0){g.fillStyle="#6b5e4c";g.font="italic 40px 'EB Garamond', serif";wrap(g,cp?`${cp.nome}: ${cm} ${cm===1?"terço":"terços"} em ${mes()}`:`Junto com a comunidade: ${cm} ${cm===1?"terço":"terços"} em ${mes()}`,540,1680,860,48)}
+  g.fillStyle="#231c14";g.font="700 44px Cinzel, serif";g.fillText("✠ TERÇO COMIGO",540,1800);
+  return c.toDataURL("image/png");
+}
+const adv=()=>{if(i<steps.length-1){trackAdv();i++;render();speak()}};
+$("next").onclick=adv;
+$("card").onclick=e=>{if(e.currentTarget.classList.contains("tap"))adv()};
+$("prev").onclick=()=>{if(i>0){i--;render();speak()}};
+
+/* ---------- Narração (voz do navegador) ---------- */
+const synth=window.speechSynthesis; let listening=false, gen=0, voices=[];
+function loadVoices(){
+  if(!synth)return;
+  voices=synth.getVoices().filter(v=>/^pt/i.test(v.lang)).sort((a,b)=>(b.lang=="pt-BR")-(a.lang=="pt-BR"));
+  $("voice").innerHTML=voices.length?voices.map((v,k)=>`<option value="${k}">${esc(v.name.replace(/Microsoft |Google /,"").slice(0,28))}</option>`).join(""):`<option>Voz padrão</option>`;
+}
+/* Texto da oração: inteiro e fixo, sem destaque. */
+const wordsHTML=text=>esc(text);
+/* Narração simples: a voz lê a oração em frases e, quando termina a última, o terço avança.
+   As falas ficam guardadas numa lista para o celular não descartá-las antes da hora. */
+let advTimer=null,lastAct=0,pausedByHide=false,wl=null,utts=[];
+function speak(){
+  if(!listening)return;
+  const my=++gen;if(synth&&(synth.speaking||synth.pending))synth.cancel();player.pause();clearTimeout(waitT);waitOn=false;clearTimeout(advTimer);advTimer=null;lastAct=Date.now();utts=[];
+  const st=steps[i],clips=clipsFor(st);
+  if(st.k==="fim"){if(hasClips(clips))playClips(clips,my,st,()=>{if(my===gen)stopListen()});else stopListen();return}
+  if(hasClips(clips)){playClips(clips,my,st);return}
+  /* Mistérios ainda sem voz gravada: nenhuma narração. O anúncio (e a passagem, se escolhida) fica na tela pelo tempo
+     de leitura e o terço segue sozinho. Depois que a voz gravada carregou, a voz do celular não entra em nenhum trecho:
+     no iPhone ela trava quando vem depois do áudio gravado. */
+  if(st.k==="anuncio"||Object.keys(AUDIO).length){advanceAfter(my,st,true);return}
+  if(!synth){stopListen();return}
+  const txt=st.k==="anuncio"?`${ORD[st.d]} mistério. ${st.title}.${modeOf()==="pass"?" "+PASS[set][st.d][1]:""}`:txtOf(st).replace(/\n/g," ");
+  const parts=txt.split(/(?<=[.;!?])\s+/).filter(Boolean);
+  const v=voices[+$("voice").value],r=+$("rate").value;
+  let started=false;
+  parts.forEach((t,k)=>{const u=new SpeechSynthesisUtterance(t);u.lang="pt-BR";u.rate=r;if(v)u.voice=v;utts.push(u);
+    u.onstart=()=>{lastAct=Date.now();started=true};
+    u.onend=()=>{lastAct=Date.now();if(my!==gen||!listening||k<parts.length-1)return;
+      advTimer=setTimeout(()=>{advTimer=null;if(my!==gen||!listening)return;if(i<steps.length-1){i++;render();speak()}},st.k==="anuncio"?(modeOf()==="pass"?3500:9000):700)};
+    synth.speak(u)});
+  /* Depois de tocar a voz gravada, o iPhone às vezes não deixa a voz do celular falar. Se ela não começar em 2,5 s,
+     o texto fica na tela pelo tempo de leitura e o terço segue sozinho, em vez de travar. */
+  setTimeout(()=>{if(my!==gen||!listening||started||advTimer)return;synth.cancel();
+    advTimer=setTimeout(()=>{advTimer=null;if(my!==gen||!listening)return;if(i<steps.length-1){i++;render();speak()}},txt.split(/\s+/).length*380/(r||1))},2500);
+}
+/* ---------- Voz gravada ----------
+   AUDIO liga o nome do arquivo do roteiro de gravação ao endereço do áudio enviado.
+   Quando todos os áudios de uma oração existem, o app toca a voz gravada; se faltar algum, usa a voz do celular.
+   No modo "Eu respondo", a voz faz a primeira parte e o app espera o tempo da segunda parte em silêncio. */
+const AUDIO={};
+/* Segundo em que a voz gravada chega à segunda metade ("desceu à mansão dos mortos" e "Eia, pois, advogada nossa") */
+const SPLIT_T={creio:20.3,"salve-rainha":15.8};
+/* Os áudios gravados chegam num arquivo à parte, para a página abrir rápido; enquanto não carregam, vale a voz do celular. */
+(()=>{const sc=document.createElement("script");sc.src="audio-data.js";sc.async=true;
+  sc.onload=()=>{Object.assign(AUDIO,window.TERCO_AUDIO||{});if(Object.keys(AUDIO).length)$("ahint").textContent="Voz gravada nas orações. Nos mistérios, por enquanto, a leitura fica na tela em silêncio. Com o áudio ligado, o terço avança sozinho e a tela não apaga."};
+  document.head.appendChild(sc)})();
+const player=new Audio();player.preload="auto";
+let waitT=null,waitOn=false;
+const respMode=()=>$("resp").value==="resp";
+function clipsFor(st){const pre={Gozosos:"gozo",Luminosos:"lumi",Dolorosos:"dolo",Gloriosos:"glor"}[set];
+  /* Rezando tudo, usa a versão inteira (as duas metades já emendadas); no modo de resposta, só a primeira metade */
+  const two=b=>respMode()?[b+"-1",{wait:b+"-2"}]:(AUDIO[b]?[b]:[b+"-1",b+"-2"]);
+  switch(st.k){
+    case"abre":return["abertura","oferecimento",...(oferta?["intencao-alavanca"]:[])];
+    case"cruz":return["sinal-da-cruz"];
+    case"credo":return st.half===0?["creio"]:[];
+    case"pai":return two("pai-nosso");
+    case"ave":return two("ave-maria");
+    case"gloria":return two("gloria");
+    case"jesus":return["o-meu-jesus"];
+    case"agrad":return["agradecimento"];
+    case"salve":return st.half===0?["salve-rainha"]:[];
+    case"anuncio":return[`${pre}-${st.d+1}-anuncio`,...(modeOf()==="pass"?[`${pre}-${st.d+1}-passagem`]:[])];
+    case"eterno":return["eterno-pai"];case"paixao":return["pela-sua-dolorosa-paixao"];
+    case"santo":return["deus-santo"];case"confio":return["jesus-eu-confio"];
+    case"fim":return["encerramento"]}
+  return[]}
+const hasClips=list=>list.length>0&&list.every(c=>AUDIO[typeof c==="string"?c:c.wait]);
+const splitRatio=k=>HALVES[k]?HALVES[k][0].length/(HALVES[k][0].length+HALVES[k][1].length):1;
+function playClips(list,my,st,done){let k=0;
+  const next=()=>{if(my!==gen||!listening)return;
+    if(k>=list.length){(done||(()=>advanceAfter(my,st)))();return}
+    const c=list[k++];
+    if(typeof c!=="string"){waitFor(c.wait,my,next);return}
+    player.src=AUDIO[c];player.playbackRate=+$("rate").value||1;
+    player.onended=()=>{lastAct=Date.now();next()};
+    /* Creio e Salve-Rainha: um áudio só, e a tela troca para a segunda metade no ponto certo */
+    player.ontimeupdate=()=>{lastAct=Date.now();if(st.half===0&&steps[i]===st&&player.duration&&player.currentTime>=(SPLIT_T[c]!==undefined?SPLIT_T[c]:player.duration*splitRatio(st.k))){i++;render()}};
+    player.play().catch(()=>{if(my===gen){pausedByHide=true;stopListen()}})};
+  next()}
+function waitFor(name,my,cb){const a=new Audio(AUDIO[name]);let started=false;waitOn=true;lastAct=Date.now();
+  const go=()=>{if(started)return;started=true;const ms=(isFinite(a.duration)&&a.duration>0?a.duration:4)*1000/(+$("rate").value||1);
+    waitT=setTimeout(()=>{waitOn=false;lastAct=Date.now();if(my===gen&&listening)cb()},ms+400)};
+  a.addEventListener("loadedmetadata",go);setTimeout(go,1500)}
+const nWords=t=>String(t||"").split(/\s+/).filter(Boolean).length;
+function readMs(st){const r=+$("rate").value||1;
+  if(st.k==="anuncio")return modeOf()==="pass"?Math.max(12000,nWords(st.title+" "+PASS[set][st.d][1])*420/r+4000):10000;
+  return P[st.k]?Math.max(2500,nWords(txtOf(st))*380/r+800):2500}
+function advanceAfter(my,st,read){advTimer=setTimeout(()=>{advTimer=null;if(my!==gen||!listening)return;
+  if(!read&&steps[i]&&steps[i].half===0&&steps[i+1]&&steps[i+1].k===steps[i].k)i++;
+  if(i<steps.length-1){i++;render();speak()}},read?readMs(st):st.k==="anuncio"?(modeOf()==="pass"?3500:9000):700)}
+try{const r=localStorage.getItem("terco-resp");if(r)$("resp").value=r}catch(e){}
+$("resp").onchange=()=>{try{localStorage.setItem("terco-resp",$("resp").value)}catch(e){}track(x=>{x.resp=$("resp").value})};
+
+/* Tela acesa enquanto o áudio toca */
+async function wake(){try{if(!wl&&navigator.wakeLock){wl=await navigator.wakeLock.request("screen");wl.addEventListener("release",()=>{wl=null})}}catch(e){wl=null}}
+function unwake(){try{if(wl)wl.release()}catch(e){}wl=null}
+function stopListen(){listening=false;gen++;clearTimeout(advTimer);advTimer=null;clearTimeout(waitT);waitOn=false;player.pause();if(synth)synth.cancel();unwake();
+  const b=$("listen");b.classList.remove("on");b.textContent=pausedByHide?"Continuar":"Ouvir";b.setAttribute("aria-pressed","false");const c=$("card");if(c){c.classList.remove("karaoke");fitCard()}}
+$("listen").onclick=()=>{
+  if(!synth&&!Object.keys(AUDIO).length){$("ahint").textContent="Este navegador não tem voz disponível.";return}
+  if(listening){pausedByHide=false;stopListen();return}
+  pausedByHide=false;listening=true;track(x=>{x.narracao=(x.narracao||0)+1});const b=$("listen");b.classList.add("on");b.textContent="Pausar";b.setAttribute("aria-pressed","true");wake();speak();
+};
+/* Ao sair do app o celular corta a voz: o áudio pausa de verdade e o botão vira "Continuar", que retoma a oração atual do começo. */
+document.addEventListener("visibilitychange",()=>{if(document.hidden){if(listening){pausedByHide=true;stopListen()}}else if(listening)wake()});
+/* Se a voz ficou muda por muito tempo sem nenhum aviso, o botão volta para "Continuar" em vez de ficar mostrando "Pausar". */
+setInterval(()=>{if(!listening||advTimer||waitOn||!player.paused||(synth&&(synth.speaking||synth.pending)))return;if(Date.now()-lastAct>12000){pausedByHide=true;stopListen()}},2000);
+$("adjbtn").onclick=()=>{const a=$("adj");a.hidden=!a.hidden;$("adjbtn").setAttribute("aria-expanded",String(!a.hidden))};
+$("voice").onchange=()=>{if(listening)speak()};
+$("rate").onchange=()=>{if(listening)speak()};
+try{const m=localStorage.getItem("terco-modo");if(m)$("mode").value=m}catch(e){}
+$("mode").onchange=()=>{try{localStorage.setItem("terco-modo",$("mode").value)}catch(e){}track(x=>{x.modo=$("mode").value});if(steps[i]&&steps[i].k==="anuncio"){render();if(listening)speak()}};
+if(synth){loadVoices();synth.onvoiceschanged=loadVoices}else $("ahint").textContent="Este navegador não tem voz disponível.";
+
+/* ---------- Comunidade: alavancas e perfil ---------- */
+let db=null,user=null,uid=null,ready=false,creating=false,openAid=null,detail={membros:[],oracoes:[],preces:[]},unsub=[];
+let perfil={total:0,streak:0,lastDay:"",minhas:[]}, alavs=[], pq=Promise.resolve();
+const rid=()=>Array.from(crypto.getRandomValues(new Uint8Array(10)),b=>"abcdefghijkmnpqrstuvwxyz23456789"[b%32]).join("");
+const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const hora=h=>{const [a,b]=String(h||"20:00").split(":");return b==="00"?`${+a}h`:`${+a}h${b}`};
+function proxima(dia,h){const now=new Date(),[hh,mm]=String(h||"20:00").split(":").map(Number),d=new Date(now);d.setHours(hh,mm,0,0);
+  let add=(dia-now.getDay()+7)%7;if(add===0&&d<=now)add=7;d.setDate(d.getDate()+add);
+  return add===0?"hoje":add===1?"amanhã":`${DAYS[dia].toLowerCase()}, ${d.getDate()}/${d.getMonth()+1}`}
+const when=a=>a.hora?`Lembrete diário às ${hora(a.hora)}`:"Reze quando puder";
+const quando=ms=>new Date(ms).toLocaleString("pt-BR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+const err=e=>console.warn("db",e&&e.code);
+function savePerfil(patch){perfil={...perfil,...patch};const snap={...perfil};pq=pq.catch(()=>{}).then(()=>db.doc(`data/users/${uid}/perfil`).set(snap));return pq}
+
+/* ---------- Registro de uso (fase de testes) ---------- */
+let T=null,tTimer=null,runOn=false,runDone=false,stepAt=Date.now();
+/* Pulo: avançar antes de 40% do tempo que a oração leva para ser rezada (cerca de 0,35 s por palavra). A narração automática não conta. */
+function trackAdv(){if(!T||!steps[i])return;const st=steps[i],dt=Date.now()-stepAt;
+  const txt=st.k==="anuncio"?`${st.title} ${modeOf()==="pass"?PASS[set][st.d][1]:""}`:(P[st.k]?txtOf(st):"");
+  const skip=dt<txt.split(/\s+/).length*350*0.4;
+  track(t=>{t.avancos=(t.avancos||0)+1;if(skip)t.pulos=(t.pulos||0)+1;const r=(t.tercos||[])[t.tercos.length-1];if(r&&runOn){r.av=(r.av||0)+1;if(skip)r.pulos=(r.pulos||0)+1}})}
+function tSave(){if(!T||!db||!uid)return;clearTimeout(tTimer);const snap=JSON.parse(JSON.stringify(T));tTimer=setTimeout(()=>{db.doc("testes/"+uid).set(snap).catch(err)},1500)}
+function track(fn){if(!T)return;try{fn(T)}catch(e){}T.ultima=Date.now();tSave()}
+async function loadT(){try{const s=await db.doc("testes/"+uid).get();const now=Date.now();
+  T=s.exists?JSON.parse(JSON.stringify(s.data())):{primeira:now,visitas:0,iniciados:0,concluidos:0,registrados:0,narracao:0,alavancasCriadas:0,entradas:0,abas:{},tercos:[]};
+  T.visitas=(T.visitas||0)+1;T.aparelho=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?"celular":"computador";track(()=>{})}catch(e){T=null}}
+function trackStep(){if(!T||!steps[i])return;
+  if(i>0&&!runOn){runOn=true;track(t=>{t.iniciados=(t.iniciados||0)+1;t.tercos=[...(t.tercos||[]).slice(-29),{em:Date.now(),misterios:set,passo:i,de:steps.length-1,ok:false}]})}
+  else if(runOn){track(t=>{const r=(t.tercos||[])[t.tercos.length-1];if(r&&i>r.passo)r.passo=i})}
+  if(steps[i].k==="fim"&&runOn&&!runDone){runDone=true;track(t=>{t.concluidos=(t.concluidos||0)+1;const r=t.tercos[t.tercos.length-1];if(r){r.ok=true;r.dur=Date.now()-r.em}})}}
+
+(async()=>{
+  try{const c=window.claude;if(c&&c.use){[db,user]=await Promise.all([c.use("db"),c.use("user")])}}catch(e){}
+  try{if(user)uid=await user.id()}catch(e){}
+  ready=true;
+  if(db&&uid){
+    loadT();
+    db.collection("contagens").limit(1000).onSnapshot(s=>{comDocs=s.docs.map(d=>({id:d.id,...d.data()}));renderCom();if(tab==="perfil")renderMyCom()},err);
+    db.collection("paroquias").limit(1000).onSnapshot(s=>{parqs=s.docs.map(d=>({id:d.id,...d.data()}));renderCom();if(tab==="perfil")renderMyCom();if(!$("modal").hidden){renderPList();convText()}},err);
+    renderCom();
+    try{if(await user.isOwner())$("tab-painel").hidden=false}catch(e){}
+    db.doc(`data/users/${uid}/perfil`).onSnapshot(s=>{if(s.exists)perfil={...perfil,...s.data()};if(!Array.isArray(perfil.minhas))perfil.minhas=[];refresh()},err);
+    db.collection("alavancas").orderBy("criadoEm","desc").limit(200).onSnapshot(s=>{alavs=s.docs.map(d=>({id:d.id,...d.data()}));refresh()},err);
+  }
+  const m=location.hash.match(/^#alavanca-([a-z0-9]+)$/),pm=location.hash.match(/^#(par|mov)-([a-z0-9-]+)$/);
+  if(m){showTab("alav");openDetail(m[1])}else refresh();
+  if(pm&&db&&uid){convite={tipo:pm[1],id:pm[2]};setTimeout(openModal,1200)}
+})();
+function refresh(){if(tab==="alav")renderAlav();if(tab==="perfil")renderPerfil();if(tab==="rezar"){renderOffer();renderLemb()}}
+
+function noAccess(){return !ready?`<p class="small">Carregando…</p>`:`<article class="page"><p class="rub">Alavancas de oração</p><h2>Entre para rezar em comunidade</h2><p class="oratio">As alavancas precisam saber quem está rezando. Verifique sua internet e abra o app de novo para criar uma corrente, entrar nela e registrar seus terços.</p></article>`}
+
+function renderAlav(){
+  const v=$("v-alav");
+  if(!db||!uid){v.innerHTML=noAccess();return}
+  if(creating){if(!$("f")){v.innerHTML=formHTML();bindForm()}return}
+  if(openAid){renderDetail();return}
+  const mine=alavs.filter(a=>perfil.minhas.includes(a.id)), others=alavs.filter(a=>!perfil.minhas.includes(a.id));
+  const li=a=>`<button class="item" data-open="${a.id}"><strong data-t="${a.id}"></strong><span><b data-g="${a.id}" style="color:var(--gold);font-weight:600">Graça alcançada ✠ · </b>${when(a)}</span></button>`;
+  v.innerHTML=`<article class="page"><p class="rub">Como no Cursilho: quem está longe sustenta em oração quem precisa.</p><h2>Alavancas de oração</h2>
+    <p class="oratio">Crie uma alavanca por um pedido, marque dia e hora e envie o convite aos grupos da sua paróquia. Cada terço oferecido chega como uma carta para quem pediu.</p>
+    <button class="btn red" id="new">Criar alavanca</button></article>
+    <h3>Minhas alavancas</h3>${mine.length?`<div class="list">${mine.map(li).join("")}</div>`:`<p class="small">Você ainda não está em nenhuma. Crie uma ou abra o convite que alguém lhe enviou.</p>`}
+    ${others.length?`<h3>Na comunidade</h3><div class="list">${others.map(li).join("")}</div>`:""}`;
+  v.querySelectorAll("[data-t]").forEach(s=>{const a=alavs.find(x=>x.id===s.dataset.t);s.textContent=a.titulo});
+  v.querySelectorAll("[data-g]").forEach(s=>s.hidden=!(alavs.find(x=>x.id===s.dataset.g)||{}).graca);
+  $("new").onclick=()=>{creating=true;renderAlav()};
+  v.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openDetail(b.dataset.open));
+}
+function formHTML(){
+  return `<article class="page"><p class="rub">Nova alavanca de oração</p><h2>Por quem vamos rezar?</h2>
+  <form id="f">
+    <label>Pedido<input id="f-t" required maxlength="80" placeholder="Pela saúde do Sr. José"></label>
+    <label>Intenção<textarea id="f-i" rows="3" maxlength="400" placeholder="Meu pai foi internado e passa por cirurgia na quinta. Peço a oração de todos."></textarea></label>
+    <label>Horário do lembrete (opcional)<input id="f-h" type="time" value="20:00"></label>
+    <p class="small">Cada pessoa reza quando puder e oferece o terço aqui. No horário escolhido, quem está em alavanca recebe um lembrete gentil para rezar pelo pedido.</p>
+    <div class="row"><button type="button" class="btn ghost" id="f-c">Cancelar</button><button class="btn red grow" id="f-s">Criar e convidar</button></div>
+  </form></article>`;
+}
+function bindForm(){
+  $("f-c").onclick=()=>{creating=false;renderAlav()};
+  $("f").onsubmit=async e=>{e.preventDefault();const t=$("f-t").value.trim();if(!t)return;
+    const btn=$("f-s");btn.disabled=true;btn.textContent="Criando…";const aid=rid();
+    try{
+      await db.doc(`alavancas/${aid}`).set({titulo:t,intencao:$("f-i").value.trim(),hora:$("f-h").value||"",criador:uid,criadoEm:Date.now()});
+      await db.doc(`alavancas/${aid}/membros/${uid}`).set({em:Date.now()});
+      await savePerfil({minhas:[...new Set([...perfil.minhas,aid])]});
+      track(x=>{x.alavancasCriadas=(x.alavancasCriadas||0)+1});creating=false;openDetail(aid);
+    }catch(x){btn.disabled=false;btn.textContent="Tentar de novo";
+      $("f").insertAdjacentHTML("beforeend",`<p class="small">${x&&x.code==="invalid_argument"?"Sua conta só pode ver esta página. Peça acesso de Colaborador a quem compartilhou.":"Não foi possível criar agora. Tente de novo."}</p>`)}
+  };
+}
+function openDetail(aid){
+  unsub.forEach(u=>u());unsub=[];openAid=aid;detail={membros:[],oracoes:[],preces:[]};delOpen=false;gOpen=false;gDraft="";
+  if(db&&uid){
+    unsub.push(db.collection(`alavancas/${aid}/membros`).onSnapshot(s=>{detail.membros=s.docs.map(d=>d.id);if(tab==="alav")renderDetail()},err));
+    unsub.push(db.collection(`alavancas/${aid}/oracoes`).orderBy("em","desc").limit(200).onSnapshot(s=>{detail.oracoes=s.docs.map(d=>d.data());if(tab==="alav")renderDetail()},err));
+    unsub.push(db.collection(`alavancas/${aid}/preces`).onSnapshot(s=>{detail.preces=s.docs.map(d=>({id:d.id,...d.data()}));if(tab==="alav")renderDetail()},err));
+  }
+  renderAlav();
+}
+function closeDetail(){unsub.forEach(u=>u());unsub=[];openAid=null;renderAlav()}
+let detTok=0;
+/* "Rezei por esta intenção": uma prece rápida (uma Ave-Maria, um Pai-Nosso) em um toque, uma vez por dia. */
+function prBox(){const pr=detail.preces||[],t=ymd(new Date()),hoje=pr.filter(x=>x.dia===t),eu=hoje.some(x=>x.uid===uid);
+  const pessoas=new Set(pr.map(x=>x.uid)).size;
+  return`<div class="prece"><button class="btn ghost" id="prece" ${eu?"disabled":""}>${eu?"✓ Você rezou por esta intenção hoje":"✠ Rezei por esta intenção"}</button>
+   <span class="small" id="prnote" style="text-align:center">${pr.length?`${pr.length} ${pr.length===1?"prece":"preces"} de ${pessoas} ${pessoas===1?"pessoa":"pessoas"}${hoje.length?` · ${hoje.length} hoje`:""}`:"Rezou uma Ave-Maria ou uma prece rápida por este pedido? Toque para quem pediu saber."}</span></div>`}
+async function renderDetail(){
+  const v=$("v-alav"),a=alavs.find(x=>x.id===openAid),my=++detTok;
+  if(!a){v.innerHTML=`<button class="btn ghost slim" id="back" style="align-self:flex-start">‹ Alavancas</button><p class="small">${alavs.length?"Esta alavanca não foi encontrada. Ela pode ter sido encerrada.":"Abrindo alavanca…"}</p>`;$("back").onclick=closeDetail;return}
+  const ids=[...new Set([...detail.membros,...detail.oracoes.map(o=>o.uid),a.criador].filter(Boolean))];
+  let ps={};try{ps=user?await user.profiles(ids):{}}catch(e){} if(my!==detTok)return;
+  const nm=id=>(ps[id]&&ps[id].name)||"Um irmão em Cristo";
+  const joined=detail.membros.includes(uid)||perfil.minhas.includes(a.id);
+  const link=`${BASE}#alavanca-${a.id}`;
+  const wa=`https://wa.me/?text=${encodeURIComponent(`✠ Alavanca de oração: ${a.titulo}\n${when(a)}.\nEntre e reze conosco: ${link}`)}`;
+  const keepMsg=$("msg2")?$("msg2").value:"";
+  v.innerHTML=`<button class="btn ghost slim" id="back" style="align-self:flex-start">‹ Alavancas</button>
+   <article class="page"><p class="rub">Alavanca de oração · criada por <span id="by"></span></p><h2 id="dt"></h2><p class="oratio" id="int"></p>
+   <p class="rub">${when(a)}. Cada um reza quando puder e oferece o terço aqui.</p>
+   <div id="gbox"></div>
+   <div class="stat"><div><b>${detail.membros.length}</b><span>em alavanca</span></div><div><b>${detail.oracoes.length}</b><span>terços oferecidos</span></div><div><b>${detail.oracoes.filter(o=>o.em>Date.now()-864e5).length}</b><span>nas últimas 24h</span></div></div>
+   <div class="faces" id="faces"></div>
+   ${db&&uid?prBox():""}
+   ${joined?`<div class="row"><button class="btn red grow" id="pray">Rezar agora por este pedido</button><button class="btn ghost" id="leave">Sair</button></div>`
+           :`<button class="btn red" id="join">Entrar nesta alavanca</button>`}
+   <div class="share"><p class="rub">Convide os grupos da paróquia</p><input id="lnk" readonly value="${esc(link)}" aria-label="Link do convite">
+     <div class="row"><button class="btn ghost grow" id="copy">Copiar link</button><a class="btn ghost grow" style="text-align:center;text-decoration:none" href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a></div>
+     <span class="small" id="copied">Quem recebe o link precisa ter acesso a esta página.</span></div>
+   <div id="delbox" class="view"></div>
+   </article>
+   <h3>Cartas da alavanca</h3>
+   <div id="mural" class="view" style="gap:12px">${detail.oracoes.length?"":`<p class="small">Ninguém ofereceu um terço ainda. Seja o primeiro.</p>`}</div>`;
+  $("dt").textContent=a.titulo; $("int").textContent=a.intencao||"Rezemos juntos por este pedido."; $("by").textContent=nm(a.criador);
+  detail.membros.slice(0,24).forEach(id=>{const im=document.createElement("img");im.alt="";im.title=nm(id);if(ps[id])im.src=ps[id].avatarUrl;$("faces").append(im)});
+  detail.oracoes.forEach(o=>{const el=document.createElement("div");el.className="letter";
+    const s=document.createElement("strong");s.textContent=`${nm(o.uid)} ofereceu um terço`;
+    const sp=document.createElement("span");sp.textContent=`Mistérios ${o.misterios||""} · ${quando(o.em)}`;
+    el.append(s,sp);if(o.msg){const q=document.createElement("q");q.textContent=o.msg;el.append(q)}$("mural").append(el)});
+  $("back").onclick=closeDetail;
+  if($("prece"))$("prece").onclick=async()=>{const b=$("prece");b.disabled=true;
+    try{await db.doc(`alavancas/${a.id}/preces/${uid}-${ymd(new Date())}`).set({uid,em:Date.now(),dia:ymd(new Date())});track(x=>{x.preces=(x.preces||0)+1})}
+    catch(e){b.disabled=false;$("prnote").textContent="Não foi possível registrar agora. Tente de novo."}};
+  renderGraca(a);renderDel(a);
+  $("copy").onclick=()=>{try{navigator.clipboard.writeText(link).then(()=>$("copied").textContent="Link copiado. Cole no grupo da pastoral.").catch(()=>{$("lnk").select();$("copied").textContent="Link selecionado: copie e cole no grupo."})}catch(e){$("lnk").select()}};
+  if($("join"))$("join").onclick=async()=>{const b=$("join");b.disabled=true;b.textContent="Entrando…";
+    try{await db.doc(`alavancas/${a.id}/membros/${uid}`).set({em:Date.now()});await savePerfil({minhas:[...new Set([...perfil.minhas,a.id])]});track(x=>{x.entradas=(x.entradas||0)+1})}
+    catch(x){b.disabled=false;b.textContent=x&&x.code==="invalid_argument"?"Sua conta só pode ver esta página":"Tentar de novo"}};
+  if($("leave"))$("leave").onclick=async()=>{try{await db.doc(`alavancas/${a.id}/membros/${uid}`).delete();await savePerfil({minhas:perfil.minhas.filter(x=>x!==a.id)})}catch(x){}};
+  if($("pray"))$("pray").onclick=()=>{oferta=a.id;showTab("rezar");restart();window.scrollTo(0,0)};
+}
+
+let pTok=0;
+async function renderPerfil(){
+  const v=$("perfil-body"),my=++pTok,draft=$("fb")?$("fb").value:"";
+  if(!db||!uid){v.innerHTML=noAccess();return}
+  const me=await user.me(); if(my!==pTok)return;
+  const mine=alavs.filter(a=>perfil.minhas.includes(a.id));
+  const live=perfil.lastDay===ymd(new Date())||perfil.lastDay===ymd(new Date(Date.now()-864e5));
+  v.innerHTML=`<article class="page"><div class="me"><img src="${esc(me.avatarUrl)}" alt=""><div><strong id="pn"></strong><p class="small" style="margin:0">Membro do Terço Comigo</p></div></div>
+    <div class="stat"><div><b>${perfil.total||0}</b><span>terços rezados</span></div><div><b>${live?perfil.streak||0:0}</b><span>dias seguidos</span></div><div><b>${mine.length}</b><span>alavancas</span></div></div>
+    <p class="small">${perfil.lastDay?`Último terço registrado em ${perfil.lastDay.split("-").reverse().join("/")}.`:"Reze um terço até o fim e registre para começar seu caminho."}</p>
+    <div id="conta" class="checks"></div></article>
+    <h3>Minha comunidade</h3><div id="mycom" class="view" style="gap:10px"></div>
+    <h3 id="mescard">${mesTitulo()}</h3><div id="mesbox" class="view"></div>
+    <h3>Minhas alavancas</h3>${mine.length?`<div class="list">${mine.map(a=>`<button class="item" data-open="${a.id}"><strong data-t="${a.id}"></strong><span>${when(a)}</span></button>`).join("")}</div>`:`<p class="small">Nenhuma ainda.</p>`}
+    <h3>Sugestões para o app</h3>
+    <div class="checks"><label class="col">O que achou bonito, o que ficou confuso, o que faltou?<textarea id="fb" rows="3" maxlength="1000"></textarea></label><button class="btn ghost" id="fbsend">Enviar sugestão</button><span class="small" id="fbok"></span></div>
+    <p class="small">Seu histórico de orações fica visível só para você. Nas alavancas, os outros veem seu nome e a palavra que você deixar.</p>
+    <p class="small">Fase de testes: o app registra como você o usa (visitas, terços iniciados e concluídos, recursos usados) para que o criador possa melhorá-lo. As sugestões enviadas aqui também chegam a ele.</p>`;
+  $("pn").textContent=me.name||"Você";renderConta();
+  renderMyCom();renderMes();
+  $("fb").value=draft;
+  $("fbsend").onclick=async()=>{const t=$("fb").value.trim();if(!t)return;const b=$("fbsend");b.disabled=true;
+    try{await db.doc(`testes/${uid}/feedback/${rid()}`).set({em:Date.now(),texto:t.slice(0,1000)});$("fb").value="";$("fbok").textContent="Obrigado! Sua sugestão foi enviada."}
+    catch(e){$("fbok").textContent="Não foi possível enviar agora. Tente de novo."}b.disabled=false};
+  v.querySelectorAll("[data-t]").forEach(s=>{const a=alavs.find(x=>x.id===s.dataset.t);s.textContent=a.titulo});
+  v.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{showTab("alav");openDetail(b.dataset.open)});
+}
+
+/* ---------- Conta (versão web): nome que aparece nas alavancas e entrada com Google ---------- */
+function renderConta(){const box=$("conta");if(!box||!window.TC)return;const c=TC.info();
+  box.innerHTML=`<label class="col">Seu nome nas alavancas<input id="cnome" maxlength="40" placeholder="Ex.: Maria Aparecida"></label><button class="btn ghost" id="csave">Salvar nome</button>
+   ${c.anon?`<button class="btn ghost" id="cgoogle">Entrar com Google</button><span class="small">Opcional. Guarda seus terços e alavancas para usar em outro celular.</span>`
+     :`<span class="small">Conectado como ${esc(c.email||"")}. </span><button class="linkbtn" id="csair">Sair desta conta</button>`}<span class="small" id="cmsg"></span>`;
+  $("cnome").value=c.name||"";
+  $("csave").onclick=async()=>{try{await TC.setName($("cnome").value);$("cmsg").textContent="Nome salvo.";renderPerfil()}catch(e){$("cmsg").textContent="Não foi possível salvar agora."}};
+  if($("cgoogle"))$("cgoogle").onclick=async()=>{try{await TC.google()}catch(e){$("cmsg").textContent=e&&e.code==="auth/popup-blocked"?"O navegador bloqueou a janela do Google. Libere e tente de novo.":"Não foi possível entrar agora."}};
+  if($("csair"))$("csair").onclick=()=>{if(confirm("Sair desta conta? Neste aparelho você volta a usar o app sem conta."))TC.sair()}}
+
+/* ---------- Comunidade: todo terço concluído soma, com ou sem alavanca ----------
+   Cada pessoa tem uma contagem anônima em contagens/<token>; o token aleatório fica só no perfil privado.
+   g guarda quantos terços foram para cada paróquia (p:id) e movimento (m:id) em cada mês. */
+let comDone=false,comSkipped=false,comDocs=[],parqs=[],convite=null,askedNow=false;
+let mSel={par:null,mov:[]},mQ="",mAdd=false;
+const ym=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`};
+const mes=()=>new Date().toLocaleDateString("pt-BR",{month:"long"});
+const comMonth=()=>comDocs.reduce((s,d)=>s+((d.porMes||{})[ym()]||0),0);
+const sumG=key=>comDocs.reduce((s,d)=>s+(((d.g||{})[key]||{})[ym()]||0),0);
+const parOf=id=>parqs.find(p=>p.id===id);
+const movName=id=>(MOV.find(x=>x[0]===id)||[id,id])[1];
+const minhaPar=()=>perfil.paroquia?parOf(perfil.paroquia):null;
+const grupos=()=>[...(perfil.paroquia?["p:"+perfil.paroquia]:[]),...(perfil.movimentos||[]).map(x=>"m:"+x)];
+const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const nT=n=>`${n} ${n===1?"terço":"terços"}`;
+/* Durante a oração o topo se recolhe para o terço e o texto caberem na tela. */
+function praying(){return i>0&&steps[i]&&steps[i].k!=="fim"}
+function renderCom(){const el=$("com");if(!db||!uid||praying()){el.hidden=true;if(!db||!uid)return}else el.hidden=false;const m=comMonth(),p=minhaPar();
+  if(p){el.innerHTML=`✠ <span id="cpn"></span> já rezou <b>${sumG("p:"+p.id)}</b> ${sumG("p:"+p.id)===1?"terço":"terços"} em ${mes()}<small>Comunidade Terço Comigo: ${nT(m)}</small>`;$("cpn").textContent=p.nome}
+  else el.innerHTML=(m?`✠ Nossa comunidade já rezou <b>${m}</b> ${m===1?"terço":"terços"} em ${mes()}`:`✠ Seja o primeiro da comunidade a rezar em ${mes()}`)+`<small><button class="linkbtn" id="cjoin">Somar meus terços aos da minha paróquia</button></small>`;
+  const cj=$("cjoin");if(cj)cj.onclick=()=>openModal();
+  const f=$("comfim");if(f)f.textContent=comDone&&!comSkipped&&m?(p?`Seu terço foi somado: ${p.nome} já rezou ${nT(sumG("p:"+p.id))} em ${mes()}.`:`Seu terço foi somado: a comunidade já rezou ${nT(m)} em ${mes()}.`):"";}
+async function bumpCount(n,total,only){
+  let tk=perfil.token;if(!tk){tk=rid()+rid();await savePerfil({token:tk})}
+  const mine=comDocs.find(d=>d.id===tk)||{};
+  const cur=JSON.parse(JSON.stringify({total:mine.total||0,porMes:mine.porMes||{},g:mine.g||{}})),m=ym();
+  if(total){cur.total+=n;cur.porMes[m]=(cur.porMes[m]||0)+n}
+  (only||grupos()).forEach(k=>{cur.g[k]=cur.g[k]||{};cur.g[k][m]=(cur.g[k][m]||0)+n});
+  cur.ultima=Date.now();
+  const ix=comDocs.findIndex(d=>d.id===tk);if(ix>=0)comDocs[ix]={id:tk,...cur};else comDocs.push({id:tk,...cur});
+  await db.doc("contagens/"+tk).set(cur)}
+/* Terço passado com mais da metade das orações puladas não entra no total. */
+async function contarComunidade(){if(comDone||!db||!uid)return;comDone=true;
+  const r=T&&T.tercos&&T.tercos[T.tercos.length-1];
+  if(r&&(r.av||0)>=10&&(r.pulos||0)/r.av>0.5){comSkipped=true;return}
+  try{await bumpCount(1,true);registrarMes()}catch(e){comDone=false}renderCom()}
+
+/* ---------- Meu mês de oração (perfil privado) ---------- */
+function registrarMes(){const m=ym(),ms={...(perfil.meses||{})},old=ms[m]||{};
+  const c={tercos:(old.tercos||0)+1,dias:[...new Set([...(old.dias||[]),ymd(new Date()).slice(8)])],misterios:{...(old.misterios||{})},alavancas:old.alavancas||0,porVoce:old.porVoce||0};
+  c.misterios[set]=(c.misterios[set]||0)+1;ms[m]=c;savePerfil({meses:ms})}
+function mesInc(k){if(!db||!uid)return;const m=ym(),ms={...(perfil.meses||{})},c={...(ms[m]||{tercos:0,dias:[],misterios:{}})};c[k]=(c[k]||0)+1;ms[m]=c;savePerfil({meses:ms})}
+function mesTitulo(){return new Date().getMonth()===9?"Meu Outubro do Rosário":`Meu ${mes()} de oração`}
+function statsMes(){const c=(perfil.meses||{})[ym()]||{},mis=Object.entries(c.misterios||{}).sort((a,b)=>b[1]-a[1]);
+  return{t:c.tercos||0,d:(c.dias||[]).length,a:c.alavancas||0,v:c.porVoce||0,top:mis.length?mis[0][0]:null}}
+function renderMes(){const box=$("mesbox");if(!box)return;const s=statsMes();
+  if(!s.t){box.innerHTML=`<p class="small">Reze um terço até o fim para começar o seu ${mesTitulo().replace("Meu ","")}. O card do mês fica pronto aqui.</p>`;return}
+  box.innerHTML=`<div class="stat"><div><b>${s.t}</b><span>terços</span></div><div><b>${s.d}</b><span>dias de oração</span></div><div><b>${s.a}</b><span>em alavanca</span></div></div>
+   <p class="small">${s.top?`Mistérios mais rezados: ${s.top}.`:""}${s.v?` Você rezou por ${s.v} ${s.v===1?"pessoa":"pessoas"}.`:""}</p>
+   <button class="btn red" id="mesgen">Gerar meu card do mês</button><img id="mesimg" alt="Card do mês" hidden style="width:100%;max-width:280px;align-self:center;box-shadow:0 10px 30px rgba(0,0,0,.2)">
+   <button class="btn red" id="messhare" hidden>Compartilhar imagem</button><span class="small" id="mesnote"></span>`;
+  $("mesgen").onclick=async()=>{const im=$("mesimg");im.src=await makeMesCard();im.hidden=false;$("messhare").hidden=false;track(x=>{x.cardMes=(x.cardMes||0)+1})};
+  $("messhare").onclick=()=>shareImg($("mesimg"),"meu-mes-de-oracao.png",$("messhare"),$("mesnote"))}
+async function fontsReady(){try{await Promise.all([document.fonts.load("700 80px Cinzel"),document.fonts.load("italic 80px 'EB Garamond'")])}catch(e){}}
+function baseCard(g,color){g.fillStyle="#f4ecda";g.fillRect(0,0,1080,1920);g.strokeStyle="#a3221b";g.lineWidth=4;g.strokeRect(60,60,960,1800);g.lineWidth=1.5;g.strokeRect(78,78,924,1764);
+  g.fillStyle=color;g.beginPath();g.moveTo(860,60);g.lineTo(920,60);g.lineTo(920,330);g.lineTo(890,300);g.lineTo(860,330);g.closePath();g.fill();
+  g.textAlign="center";g.fillStyle="#a3221b";g.font="700 150px Cinzel, serif";g.fillText("✠",540,330)}
+async function makeMesCard(){await fontsReady();const s=statsMes(),c=document.createElement("canvas");c.width=1080;c.height=1920;const g=c.getContext("2d");
+  baseCard(g,RIBBON[s.top]||"#2f4f8f");
+  const tt=mesTitulo().toUpperCase().split(" ");
+  g.fillStyle="#231c14";g.font="700 66px Cinzel, serif";g.fillText(tt.slice(0,2).join(" "),540,460);g.fillText(tt.slice(2).join(" "),540,545);
+  g.fillStyle="#a3221b";g.font="700 300px Cinzel, serif";g.fillText(String(s.t),540,900);
+  g.fillStyle="#231c14";g.font="italic 64px 'EB Garamond', serif";g.fillText(s.t===1?"terço rezado":"terços rezados",540,990);
+  g.fillStyle="#6b5e4c";g.font="italic 52px 'EB Garamond', serif";let y=1130;
+  [`em ${s.d} ${s.d===1?"dia":"dias"} de oração`,s.a?`${s.a} ${s.a===1?"oferecido":"oferecidos"} em alavanca`:null,s.v?`rezei por ${s.v} ${s.v===1?"pessoa":"pessoas"}`:null,s.top?(s.top===MIS?"mais rezado: terço da misericórdia":`mistérios mais rezados: ${s.top.toLowerCase()}`):null].filter(Boolean).forEach(t=>{g.fillText(t,540,y);y+=78});
+  const p=minhaPar();if(p){g.fillStyle="#a3221b";g.font="500 34px Cinzel, serif";g.fillText("COM A MINHA COMUNIDADE",540,1560);g.fillStyle="#231c14";g.font="italic 52px 'EB Garamond', serif";wrap(g,p.nome,540,1630,840,60)}
+  g.fillStyle="#231c14";g.font="700 44px Cinzel, serif";g.fillText("✠ TERÇO COMIGO",540,1800);return c.toDataURL("image/png")}
+
+/* ---------- Lembrete gentil das alavancas (dentro do app; a notificação no celular chega na V2) ---------- */
+function lembDisp(){try{return JSON.parse(localStorage.getItem("terco-lemb")||"{}")}catch(e){return{}}}
+function renderLemb(){const el=$("lemb");if(!el)return;if(!db||!uid||praying()){el.hidden=true;return}
+  const now=new Date(),t=ymd(now),hm=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`,ds=lembDisp(),of=perfil.ofertas||{};
+  const a=alavs.find(x=>perfil.minhas.includes(x.id)&&x.hora&&hm>=x.hora&&of[x.id]!==t&&ds[x.id]!==t&&oferta!==x.id&&!x.graca);
+  if(!a){el.hidden=true;return}
+  el.hidden=false;el.innerHTML=`<span>✠ Lembrete gentil: você está em alavanca por <em></em>. Quando puder, ofereça um terço hoje.</span><span class="row"><button class="btn red slim" id="lgo">Rezar por este pedido</button><button class="btn ghost slim" id="lno">Hoje não</button></span>`;
+  el.querySelector("em").textContent=a.titulo;
+  $("lgo").onclick=()=>{oferta=a.id;renderOffer();renderLemb();track(x=>{x.lembreteAceito=(x.lembreteAceito||0)+1})};
+  $("lno").onclick=()=>{const d=lembDisp();d[a.id]=t;try{localStorage.setItem("terco-lemb",JSON.stringify(d))}catch(e){}renderLemb()}}
+setInterval(()=>{if(tab==="rezar")renderLemb()},60000);
+
+/* ---------- Excluir alavanca (só quem criou) ---------- */
+let delOpen=false;
+function renderDel(a){const box=$("delbox");if(!box)return;if(a.criador!==uid){box.innerHTML="";return}
+  if(!delOpen){box.innerHTML=`<button class="linkbtn" id="del">Excluir esta alavanca</button>`;$("del").onclick=()=>{delOpen=true;renderDel(a)};return}
+  box.innerHTML=`<div class="grace"><p class="rub">Excluir esta alavanca?</p><p class="small" style="margin:0">Ela some para todos que estão em alavanca, junto com as cartas e os terços oferecidos. Não dá para desfazer. As orações que já foram feitas continuam valendo.</p>
+   <div class="row"><button class="btn ghost" id="delno">Manter</button><button class="btn red grow" id="delok">Excluir para sempre</button></div><span class="small" id="delerr"></span></div>`;
+  $("delno").onclick=()=>{delOpen=false;renderDel(a)};
+  $("delok").onclick=async()=>{const b=$("delok");b.disabled=true;b.textContent="Excluindo…";
+    try{const [ms,os,pc]=await Promise.all([db.collection(`alavancas/${a.id}/membros`).get(),db.collection(`alavancas/${a.id}/oracoes`).get(),db.collection(`alavancas/${a.id}/preces`).get()]);
+      for(const p of [...ms.docs.map(x=>`alavancas/${a.id}/membros/${x.id}`),...os.docs.map(x=>`alavancas/${a.id}/oracoes/${x.id}`),...pc.docs.map(x=>`alavancas/${a.id}/preces/${x.id}`)])await db.doc(p).delete();
+      await db.doc(`alavancas/${a.id}`).delete();
+      await savePerfil({minhas:perfil.minhas.filter(x=>x!==a.id)});if(oferta===a.id)oferta=null;
+      track(x=>{x.alavancasExcluidas=(x.alavancasExcluidas||0)+1});delOpen=false;closeDetail()}
+    catch(e){b.disabled=false;b.textContent="Excluir para sempre";$("delerr").textContent="Não foi possível excluir agora. Tente de novo."}}}
+
+/* ---------- Graça alcançada (alavanca) ---------- */
+let gOpen=false,gDraft="";
+function renderGraca(a){const box=$("gbox");if(!box)return;
+  if(a.graca){box.innerHTML=`<div class="grace"><p class="rub">Graça alcançada ✠ ${esc(quando(a.graca.em))}</p><p class="oratio" id="gtx" style="font-size:1.02rem"></p><button class="btn red" id="gcard">Gerar card de agradecimento</button><img id="gimg" alt="Card de agradecimento" hidden style="width:100%;max-width:280px;align-self:center"><button class="btn ghost" id="gshare" hidden>Compartilhar imagem</button><span class="small" id="gnote"></span></div>`;
+    $("gshare").onclick=()=>shareImg($("gimg"),"graca-alcancada.png",$("gshare"),$("gnote"));
+    $("gtx").textContent=a.graca.texto||"Obrigado a todos que estiveram em alavanca por este pedido.";
+    $("gcard").onclick=async()=>{const im=$("gimg");im.src=await makeGracaCard(a);im.hidden=false;$("gshare").hidden=false;track(x=>{x.cardGraca=(x.cardGraca||0)+1})};return}
+  if(a.criador!==uid){box.innerHTML="";return}
+  if(!gOpen){box.innerHTML=`<button class="btn ghost" id="gnew">Graça alcançada? Conte para quem rezou</button>`;$("gnew").onclick=()=>{gOpen=true;renderGraca(a)};return}
+  box.innerHTML=`<div class="grace"><label>Conte como foi (opcional)<textarea id="gt" rows="3" maxlength="300" placeholder="A cirurgia correu bem e meu pai já está em casa. Obrigado a todos!"></textarea></label><div class="row"><button class="btn ghost" id="gcancel">Cancelar</button><button class="btn red grow" id="gok">Confirmar graça alcançada</button></div><span class="small" id="gerr"></span></div>`;
+  $("gt").value=gDraft;$("gt").oninput=e=>{gDraft=e.target.value};$("gcancel").onclick=()=>{gOpen=false;renderGraca(a)};
+  $("gok").onclick=async()=>{const b=$("gok");b.disabled=true;
+    try{await db.doc(`alavancas/${a.id}`).update({graca:{em:Date.now(),texto:gDraft.trim().slice(0,300)}});gOpen=false;gDraft="";track(x=>{x.gracas=(x.gracas||0)+1})}
+    catch(e){b.disabled=false;$("gerr").textContent="Não foi possível salvar agora. Tente de novo."}}}
+async function makeGracaCard(a){await fontsReady();const c=document.createElement("canvas");c.width=1080;c.height=1920;const g=c.getContext("2d");baseCard(g,"#b08a2e");
+  g.fillStyle="#231c14";g.font="700 70px Cinzel, serif";g.fillText("GRAÇA ALCANÇADA",540,470);
+  g.fillStyle="#a3221b";g.font="italic 72px 'EB Garamond', serif";const y=wrap(g,a.titulo,540,590,860,82);
+  const n=detail.oracoes.length,mb=detail.membros.length;
+  g.fillStyle="#a3221b";g.font="700 240px Cinzel, serif";g.fillText(String(n),540,y+300);
+  g.fillStyle="#231c14";g.font="italic 60px 'EB Garamond', serif";g.fillText(n===1?"terço oferecido":"terços oferecidos",540,y+390);
+  g.fillStyle="#6b5e4c";g.font="italic 50px 'EB Garamond', serif";g.fillText(`por ${mb} ${mb===1?"pessoa":"pessoas"} em alavanca`,540,y+460);
+  if(a.graca&&a.graca.texto){g.fillStyle="#231c14";g.font="italic 46px 'EB Garamond', serif";wrap(g,"“"+a.graca.texto.slice(0,180)+"”",540,y+600,820,58)}
+  g.fillStyle="#6b5e4c";g.font="italic 44px 'EB Garamond', serif";g.fillText("Obrigado a todos que rezaram conosco.",540,1700);
+  g.fillStyle="#231c14";g.font="700 44px Cinzel, serif";g.fillText("✠ TERÇO COMIGO",540,1800);return c.toDataURL("image/png")}
+
+/* ---------- Escolha da paróquia e dos movimentos ---------- */
+function openModal(){if(!db||!uid)return;mSel={par:perfil.paroquia||null,mov:[...(perfil.movimentos||[])]};
+  if(convite){if(convite.tipo==="par")mSel.par=convite.id;else if(!mSel.mov.includes(convite.id))mSel.mov.push(convite.id)}
+  mQ="";mAdd=false;$("modal").hidden=false;renderModal();track(x=>{x.janelaComunidade=(x.janelaComunidade||0)+1})}
+function closeModal(){$("modal").hidden=true;convite=null}
+function renderModal(){const md=$("modal");if(md.hidden)return;const keep=$("np-n")?{n:$("np-n").value,c:$("np-c").value,u:$("np-u").value}:null;
+  md.innerHTML=`<article class="page"><p class="rub">${convite?"Você recebeu um convite":"Sua comunidade"}</p><h2 id="mtitle">Some seus terços aos da sua paróquia</h2>
+   <p class="small" id="mconv">Cada terço que você rezar entra no total da sua paróquia e dos seus movimentos. Leva 30 segundos.</p>
+   <h3>Paróquia</h3>
+   <input id="mq" placeholder="Busque pelo nome da paróquia ou da cidade" aria-label="Buscar paróquia">
+   <div class="plist" id="plist"></div><div id="addp" class="view" style="gap:8px"></div>
+   <h3>Movimentos e pastorais</h3><p class="small" style="margin:0">Pode marcar mais de um.</p>
+   <div class="chips" id="mchips">${MOV.map(([id,n])=>`<button class="chip ${mSel.mov.includes(id)?"on":""}" data-m="${id}" aria-pressed="${mSel.mov.includes(id)}">${n}</button>`).join("")}</div>
+   <p class="small">Usamos sua paróquia e seus movimentos só para somar seus terços aos da sua comunidade. Os totais mostram apenas números, nunca quem participa. Você pode mudar ou apagar essa escolha no Perfil.</p>
+   <span class="small" id="merr" style="color:var(--rubric)"></span>
+   <div class="row"><button class="btn ghost" id="mno">Agora não</button><button class="btn red grow" id="mok">Salvar</button></div></article>`;
+  convText();
+  $("mq").value=mQ;$("mq").oninput=e=>{mQ=e.target.value;renderPList()};
+  $("mchips").onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;const id=b.dataset.m;mSel.mov=mSel.mov.includes(id)?mSel.mov.filter(x=>x!==id):[...mSel.mov,id];b.classList.toggle("on");b.setAttribute("aria-pressed",mSel.mov.includes(id))};
+  $("mno").onclick=()=>{savePerfil({perguntou:true});closeModal()};
+  $("mok").onclick=salvarComunidade;
+  renderPList();
+  if(keep&&$("np-n")){$("np-n").value=keep.n;$("np-c").value=keep.c;$("np-u").value=keep.u}}
+function convText(){const el=$("mconv");if(!el||!convite)return;const cv=convite.tipo==="par"?parOf(convite.id):null;
+    el.textContent=convite.tipo==="par"?(cv?`Reze com a comunidade da ${cv.nome}, em ${cv.cidade}. Seus terços vão somar com os dela.`:"Carregando a paróquia do convite…"):`Reze junto com ${movName(convite.id)}. Seus terços vão somar com os do movimento.`}
+function renderPList(){const box=$("plist");if(!box)return;const q=norm(mQ).trim(),sel=mSel.par&&parOf(mSel.par);
+  let list=parqs.slice().sort((a,b)=>(a.cidade+a.nome).localeCompare(b.cidade+b.nome,"pt"));
+  if(q)list=list.filter(p=>norm(p.nome+" "+p.cidade).includes(q));
+  if(!q&&sel)list=[sel,...list.filter(p=>p.id!==sel.id)];
+  list=list.slice(0,q?40:8);box.innerHTML="";
+  list.forEach(p=>{const b=document.createElement("button");b.type="button";if(p.id===mSel.par)b.className="on";b.setAttribute("aria-pressed",p.id===mSel.par);
+    const s=document.createElement("strong");s.textContent=p.nome;const sp=document.createElement("span");sp.textContent=`${p.cidade} – ${p.uf}${p.diocese?" · Diocese de "+p.diocese:""}`;b.append(s,sp);
+    b.onclick=()=>{mSel.par=mSel.par===p.id?null:p.id;renderPList()};box.append(b)});
+  if(!list.length){const e=document.createElement("p");e.className="small";e.style.padding="8px 4px";e.textContent=q?"Nenhuma paróquia encontrada com esse nome.":"Ainda não há paróquias cadastradas.";box.append(e)}
+  const ad=$("addp");if(!ad)return;
+  if(!mAdd){ad.innerHTML=`<button class="linkbtn" id="addbtn">Não encontrou? Adicionar minha paróquia</button>`;$("addbtn").onclick=()=>{mAdd=true;renderPList()}}
+  else if(!$("np-n")){const cities=[...new Set(parqs.map(p=>p.cidade))].sort((a,b)=>a.localeCompare(b,"pt"));
+    ad.innerHTML=`<label>Nome da paróquia<input id="np-n" maxlength="80" placeholder="Paróquia São Sebastião"></label>
+    <div class="pair"><label>Cidade<input id="np-c" maxlength="60" list="np-cities"></label><label>Estado<select id="np-u">${UFS.map(u=>`<option ${u==="PR"?"selected":""}>${u}</option>`).join("")}</select></label></div>
+    <datalist id="np-cities">${cities.map(c=>`<option value="${esc(c)}"></option>`).join("")}</datalist>
+    <button class="btn ghost" id="np-s" type="button">Adicionar paróquia</button>`;
+    $("np-n").value=mQ;$("np-s").onclick=addParoquia}}
+async function addParoquia(){const n=$("np-n").value.trim(),c=$("np-c").value.trim(),u=$("np-u").value;
+  if(!n||!c){$("merr").textContent="Escreva o nome da paróquia e a cidade.";return}
+  const dup=parqs.find(p=>norm(p.nome)===norm(n)&&norm(p.cidade)===norm(c));
+  if(dup){mSel.par=dup.id;mAdd=false;$("addp").innerHTML="";renderPList();return}
+  const id="u-"+rid(),b=$("np-s");b.disabled=true;
+  try{await db.doc("paroquias/"+id).set({nome:n,cidade:c,uf:u,criadoPor:uid,criadoEm:Date.now()});
+    if(!parOf(id))parqs.push({id,nome:n,cidade:c,uf:u});mSel.par=id;mAdd=false;mQ="";$("mq").value="";$("addp").innerHTML="";$("merr").textContent="";renderPList();track(x=>{x.paroquiasAdd=(x.paroquiasAdd||0)+1})}
+  catch(e){b.disabled=false;$("merr").textContent="Não foi possível adicionar agora. Tente de novo."}}
+async function salvarComunidade(){if(!mSel.par&&!mSel.mov.length){$("merr").textContent="Escolha sua paróquia ou pelo menos um movimento.";return}
+  const b=$("mok");b.disabled=true;b.textContent="Salvando…";const antes=new Set(grupos());
+  try{await savePerfil({paroquia:mSel.par,movimentos:mSel.mov,perguntou:true,consentiu:Date.now()});
+    const novos=grupos().filter(k=>!antes.has(k));
+    if(comDone&&!comSkipped&&novos.length)await bumpCount(1,false,novos);
+    track(x=>{x.comunidade=true;x.movs=mSel.mov.length});closeModal();renderCom();if(tab==="perfil")renderPerfil();
+    if(steps[i]&&steps[i].k==="fim"){const a=alavs.find(x=>x.id===oferta);makeCard(a&&a.titulo,porQuem).then(s=>{if($("shot"))$("shot").src=s})}}
+  catch(e){b.disabled=false;b.textContent="Salvar";$("merr").textContent="Não foi possível salvar agora. Tente de novo."}}
+function shareRow(label,count,link,msg){const row=document.createElement("div");row.className="letter";
+  const s=document.createElement("strong");s.textContent=label;const sp=document.createElement("span");sp.textContent=`${nT(count)} em ${mes()}`;
+  const r=document.createElement("div");r.className="row";r.style.marginTop="6px";
+  const c=document.createElement("button");c.className="btn ghost slim";c.textContent="Copiar convite";
+  c.onclick=()=>{try{navigator.clipboard.writeText(link).then(()=>{c.textContent="Copiado"}).catch(()=>{c.textContent=link})}catch(e){c.textContent=link}};
+  const w=document.createElement("a");w.className="btn ghost slim";w.style.textDecoration="none";w.target="_blank";w.rel="noopener";w.href="https://wa.me/?text="+encodeURIComponent(msg+"\n"+link);w.textContent="WhatsApp";
+  r.append(c,w);row.append(s,sp,r);return row}
+function renderMyCom(){const box=$("mycom");if(!box)return;box.innerHTML="";const p=minhaPar(),mv=perfil.movimentos||[];
+  if(!p&&!mv.length){box.innerHTML=`<p class="small">Escolha sua paróquia e seus movimentos para somar seus terços aos da sua comunidade.</p><button class="btn ghost" id="mcadd">Escolher minha paróquia</button>`;$("mcadd").onclick=()=>openModal();return}
+  if(p)box.append(shareRow(`${p.nome} · ${p.cidade}`,sumG("p:"+p.id),`${BASE}#par-${p.id}`,`✠ Vamos rezar o terço juntos? Cada terço que você rezar soma no total da nossa comunidade: ${p.nome}, ${p.cidade}.`));
+  mv.forEach(id=>box.append(shareRow(movName(id),sumG("m:"+id),`${BASE}#mov-${id}`,`✠ Vamos rezar o terço juntos? Cada terço soma no total de ${movName(id)}.`)));
+  const r=document.createElement("div");r.className="row";r.innerHTML=`<button class="btn ghost slim" id="mcch">Mudar</button><button class="btn ghost slim" id="mcdel">Apagar minha escolha</button>`;box.append(r);
+  $("mcch").onclick=()=>openModal();
+  $("mcdel").onclick=async()=>{await savePerfil({paroquia:null,movimentos:[]});renderMyCom();renderCom()}}
+
+/* ---------- Preferências de leitura ---------- */
+const ORIG_THEME=document.documentElement.dataset.theme;
+let prefs={scale:1,theme:"auto"};try{prefs={...prefs,...JSON.parse(localStorage.getItem("terco-prefs")||"{}")}}catch(e){}
+const SCALES=[0.9,1,1.15,1.3];
+function applyPrefs(){const r=document.documentElement;r.style.setProperty("--scale",prefs.scale);
+  if(prefs.theme==="auto"){if(ORIG_THEME)r.dataset.theme=ORIG_THEME;else delete r.dataset.theme}else r.dataset.theme=prefs.theme;
+  document.querySelectorAll("#seg-fs button").forEach(b=>b.classList.toggle("on",+b.dataset.fs===+prefs.scale));
+  document.querySelectorAll("#seg-th button").forEach(b=>b.classList.toggle("on",b.dataset.th===prefs.theme));
+  try{localStorage.setItem("terco-prefs",JSON.stringify(prefs))}catch(e){}if(typeof fitCard==="function")fitCard()}
+$("seg-fs").onclick=e=>{const v=e.target.closest("button");if(v&&v.dataset.fs){prefs.scale=+v.dataset.fs;applyPrefs();track(x=>{x.letra=prefs.scale})}};
+$("seg-th").onclick=e=>{const v=e.target.closest("button");if(v&&v.dataset.th){prefs.theme=v.dataset.th;applyPrefs();track(x=>{x.tema=prefs.theme})}};
+$("aa").onclick=()=>{const k=SCALES.indexOf(+prefs.scale);prefs.scale=SCALES[(k+1)%SCALES.length];applyPrefs();track(x=>{x.letra=prefs.scale})};
+applyPrefs();
+
+let kTok=0;
+function etapa(r){const p=r.passo||0;if(p<8)return"nas orações iniciais";if(p>=(r.de||0)-1)return"na Salve-Rainha";return`no ${Math.min(5,Math.floor((p-8)/14)+1)}º mistério`}
+async function renderPainel(){
+  const v=$("v-painel"),my=++kTok;
+  if(!db||!uid){v.innerHTML=noAccess();return}
+  v.innerHTML=`<p class="small">Carregando o painel…</p>`;
+  let rows=[];
+  try{const s=await db.collection("testes").get();rows=s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){v.innerHTML=`<p class="small">Não foi possível carregar o painel agora. Tente de novo em instantes.</p>`;return}
+  rows.sort((a,b)=>(b.ultima||0)-(a.ultima||0));
+  const fbs=[];
+  await Promise.all(rows.map(async r=>{try{const s=await db.collection(`testes/${r.id}/feedback`).get();s.docs.forEach(d=>fbs.push({uid:r.id,...d.data()}))}catch(e){}}));
+  fbs.sort((a,b)=>(b.em||0)-(a.em||0));
+  let ps={};try{ps=await user.profiles(rows.map(r=>r.id))}catch(e){}
+  if(my!==kTok)return;
+  const nm=id=>(ps[id]&&ps[id].name)||"Convidado";
+  const sum=k=>rows.reduce((s,r)=>s+(r[k]||0),0);
+  const ini=sum("iniciados"),con=sum("concluidos");
+  const pct=(a,b)=>b?Math.round((a||0)/b*100)+"%":"—";
+  const med=r=>{const d=(r.tercos||[]).filter(t=>t.ok&&t.dur).map(t=>t.dur);return d.length?Math.max(1,Math.round(d.reduce((a,b)=>a+b,0)/d.length/60000))+" min":"—"};
+  const pressa=rows.flatMap(r=>(r.tercos||[]).filter(t=>t.ok&&((t.av&&(t.pulos||0)/t.av>0.5)||(t.dur&&t.dur<6*60000))).map(t=>({...t,uid:r.id}))).sort((a,b)=>b.em-a.em).slice(0,12);
+  const parados=rows.flatMap(r=>(r.tercos||[]).filter(t=>!t.ok).map(t=>({...t,uid:r.id}))).sort((a,b)=>b.em-a.em).slice(0,12);
+  v.innerHTML=`<article class="page"><p class="rub">Visível só para você</p><h2>Painel dos testes</h2>
+   <div class="stat"><div><b>${rows.length}</b><span>pessoas</span></div><div><b>${con}</b><span>terços concluídos</span></div><div><b>${ini?Math.round(con/ini*100):0}%</b><span>chegam ao fim</span></div></div>
+   <button class="btn ghost" id="kref">Atualizar</button></article>
+   <h3>Por pessoa</h3>
+   ${rows.length?`<div class="tbl"><table><thead><tr><th>Pessoa</th><th>Visitas</th><th>Última vez</th><th>Terços</th><th>Tempo médio</th><th>Pulou</th><th>Registrou</th><th>Ouviu</th><th>Alavancas</th><th>Aparelho</th></tr></thead><tbody id="ktb"></tbody></table></div>
+   <p class="small">Terços: concluídos de iniciados. Alavancas: criadas / entradas. Ouviu: vezes que ligou a narração. Pulou: orações passadas rápido demais para terem sido rezadas.</p>`:`<p class="small">Ninguém abriu o app ainda. Os convidados aparecem aqui assim que entrarem.</p>`}
+   <h3>Terços não concluídos</h3><div class="list" id="kpar">${parados.length?"":`<p class="small">Nenhum terço interrompido.</p>`}</div>
+   <h3>Terços rezados com pressa</h3><div class="list" id="kpr">${pressa.length?"":`<p class="small">Nenhum até agora.</p>`}</div>
+   <h3>Sugestões recebidas</h3><div class="view" style="gap:12px" id="kfb">${fbs.length?"":`<p class="small">Nenhuma sugestão ainda.</p>`}</div>`;
+  const tb=$("ktb");
+  rows.forEach(r=>{const tr=document.createElement("tr");
+    [nm(r.id),r.visitas||0,r.ultima?quando(r.ultima):"—",`${r.concluidos||0} de ${r.iniciados||0}`,med(r),pct(r.pulos,r.avancos),r.registrados||0,r.narracao?`${r.narracao}×`:"não",`${r.alavancasCriadas||0} / ${r.entradas||0}`,r.aparelho||"—"].forEach(c=>{const td=document.createElement("td");td.textContent=c;tr.append(td)});if(tb)tb.append(tr)});
+  parados.forEach(t=>{const d=document.createElement("div");d.className="item";d.style.cursor="default";
+    const s=document.createElement("strong");s.textContent=`${nm(t.uid)} parou ${etapa(t)}`;
+    const sp=document.createElement("span");sp.textContent=`Mistérios ${t.misterios||""} · ${quando(t.em)} · ${Math.round((t.passo||0)/(t.de||1)*100)}% do terço${t.pulos?` · pulou ${t.pulos} orações`:""}`;d.append(s,sp);$("kpar").append(d)});
+  pressa.forEach(t=>{const d=document.createElement("div");d.className="item";d.style.cursor="default";
+    const s=document.createElement("strong");s.textContent=`${nm(t.uid)} concluiu em ${Math.max(1,Math.round((t.dur||0)/60000))} min`;
+    const sp=document.createElement("span");sp.textContent=`Mistérios ${t.misterios||""} · ${quando(t.em)} · pulou ${pct(t.pulos,t.av)} das orações`;d.append(s,sp);$("kpr").append(d)});
+  fbs.forEach(f=>{const el=document.createElement("div");el.className="letter";const s=document.createElement("strong");s.textContent=nm(f.uid);
+    const sp=document.createElement("span");sp.textContent=quando(f.em);const q=document.createElement("q");q.textContent=f.texto||"";el.append(s,sp,q);$("kfb").append(el)});
+  $("kref").onclick=renderPainel;
+}
+
+$("day").textContent=`${DAYS[today]} · Mistérios ${BY_DAY[today]}`;
+restart();
+</script>
+<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+</body>
+</html>
