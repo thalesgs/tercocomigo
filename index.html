@@ -139,6 +139,10 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.95rem;color:var(--in
 .modal[hidden]{display:none}
 .modal .page{width:100%;max-width:500px;max-height:100%;overflow-y:auto;flex:none}
 .modal .page>*{flex-shrink:0}
+.modal .page{position:relative}
+.mclose{position:absolute;top:10px;right:10px;width:40px;height:40px;border:1px solid var(--rule);background:var(--leaf);color:var(--ink);font-size:1.2rem;border-radius:50%;cursor:pointer;line-height:1}
+.movsel{width:100%}
+.chip .x{margin-left:6px;opacity:.8}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font:inherit;font-size:.9rem;padding:7px 11px;border:1px solid var(--rule);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer}
 .chip.on{background:var(--rubric);border-color:var(--rubric);color:var(--leaf)}
@@ -229,7 +233,6 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.95rem;color:var(--in
   </section>
   <section class="view" id="v-painel" hidden></section>
 </div>
-<div class="ad"><div><b>ANÚNCIO</b><span>Espaço de publicidade discreto (exemplo)</span></div></div>
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mtitle"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -666,7 +669,7 @@ function trackStep(){if(!T||!steps[i])return;
   if(db&&uid){
     loadT();
     db.collection("contagens").limit(1000).onSnapshot(s=>{comDocs=s.docs.map(d=>({id:d.id,...d.data()}));renderCom();if(tab==="perfil")renderMyCom()},err);
-    db.collection("paroquias").limit(1000).onSnapshot(s=>{parqs=s.docs.map(d=>({id:d.id,...d.data()}));renderCom();if(tab==="perfil")renderMyCom();if(!$("modal").hidden){renderPList();convText()}},err);
+    db.collection("paroquias").limit(1000).onSnapshot(s=>{parqDb=s.docs.map(d=>({id:d.id,...d.data()}));mergeParqs();renderCom();if(tab==="perfil")renderMyCom();if(!$("modal").hidden){renderPList();convText()}},err);
     renderCom();
     try{if(await user.isOwner())$("tab-painel").hidden=false}catch(e){}
     db.doc(`data/users/${uid}/perfil`).onSnapshot(s=>{if(s.exists)perfil={...perfil,...s.data()};if(!Array.isArray(perfil.minhas))perfil.minhas=[];refresh()},err);
@@ -815,13 +818,16 @@ function renderConta(){const box=$("conta");if(!box||!window.TC)return;const c=T
    ${c.anon?`<button class="btn ghost" id="cgoogle">Entrar com Google</button><span class="small">Opcional. Guarda seus terços e alavancas para usar em outro celular.</span>`
      :`<span class="small">Conectado como ${esc(c.email||"")}. </span><button class="linkbtn" id="csair">Sair desta conta</button>`}<span class="small" id="cmsg"></span>`;
   $("cnome").value=c.name||"";
-  $("csave").onclick=async()=>{try{await TC.setName($("cnome").value);$("cmsg").textContent="Nome salvo.";renderPerfil()}catch(e){$("cmsg").textContent="Não foi possível salvar agora."}};
-  if($("cgoogle"))$("cgoogle").onclick=async()=>{try{await TC.google()}catch(e){$("cmsg").textContent=e&&e.code==="auth/popup-blocked"?"O navegador bloqueou a janela do Google. Libere e tente de novo.":"Não foi possível entrar agora."}};
+  $("csave").onclick=async()=>{try{await TC.setName($("cnome").value);$("cmsg").textContent="Nome salvo.";renderPerfil()}catch(e){$("cmsg").textContent="Não foi possível salvar agora."+ecode(e)}};
+  if($("cgoogle"))$("cgoogle").onclick=async()=>{try{await TC.google()}catch(e){const c=e&&e.code;$("cmsg").textContent=c==="auth/popup-blocked"?"O navegador bloqueou a janela do Google. Libere e tente de novo.":c==="auth/unauthorized-domain"?"Este endereço ainda não foi autorizado no Firebase (Domínios autorizados).":c==="auth/operation-not-allowed"?"A entrada com Google ainda não foi ativada no Firebase.":c==="auth/popup-closed-by-user"||c==="auth/cancelled-popup-request"?"":"Não foi possível entrar agora."+ecode(e)}};
   if($("csair"))$("csair").onclick=()=>{if(confirm("Sair desta conta? Neste aparelho você volta a usar o app sem conta."))TC.sair()}}
 
 /* ---------- Comunidade: todo terço concluído soma, com ou sem alavanca ----------
    Cada pessoa tem uma contagem anônima em contagens/<token>; o token aleatório fica só no perfil privado.
    g guarda quantos terços foram para cada paróquia (p:id) e movimento (m:id) em cada mês. */
+let parqDb=[],parqSeed=[];
+function mergeParqs(){const ids=new Set(parqDb.map(p=>p.id));parqs=[...parqDb,...parqSeed.filter(p=>!ids.has(p.id))]}
+fetch("paroquias-seed.json").then(r=>r.ok?r.json():{}).then(o=>{parqSeed=Object.entries(o).map(([id,d])=>({id,...d}));mergeParqs();renderCom();if(!$("modal").hidden)renderPList()}).catch(()=>{});
 let comDone=false,comSkipped=false,comDocs=[],parqs=[],convite=null,askedNow=false;
 let mSel={par:null,mov:[]},mQ="",mAdd=false;
 const ym=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`};
@@ -940,28 +946,38 @@ async function makeGracaCard(a){await fontsReady();const c=document.createElemen
   g.fillStyle="#231c14";g.font="700 44px Cinzel, serif";g.fillText("✠ TERÇO COMIGO",540,1800);return c.toDataURL("image/png")}
 
 /* ---------- Escolha da paróquia e dos movimentos ---------- */
+const ecode=e=>e&&e.code?` (${e.code})`:"";
 function openModal(){if(!db||!uid)return;mSel={par:perfil.paroquia||null,mov:[...(perfil.movimentos||[])]};
   if(convite){if(convite.tipo==="par")mSel.par=convite.id;else if(!mSel.mov.includes(convite.id))mSel.mov.push(convite.id)}
   mQ="";mAdd=false;$("modal").hidden=false;renderModal();track(x=>{x.janelaComunidade=(x.janelaComunidade||0)+1})}
 function closeModal(){$("modal").hidden=true;convite=null}
 function renderModal(){const md=$("modal");if(md.hidden)return;const keep=$("np-n")?{n:$("np-n").value,c:$("np-c").value,u:$("np-u").value}:null;
-  md.innerHTML=`<article class="page"><p class="rub">${convite?"Você recebeu um convite":"Sua comunidade"}</p><h2 id="mtitle">Some seus terços aos da sua paróquia</h2>
+  md.innerHTML=`<article class="page"><button class="mclose" id="mx" type="button" aria-label="Fechar">✕</button><p class="rub">${convite?"Você recebeu um convite":"Sua comunidade"}</p><h2 id="mtitle">Some seus terços aos da sua paróquia</h2>
    <p class="small" id="mconv">Cada terço que você rezar entra no total da sua paróquia e dos seus movimentos. Leva 30 segundos.</p>
    <h3>Paróquia</h3>
    <input id="mq" placeholder="Busque pelo nome da paróquia ou da cidade" aria-label="Buscar paróquia">
    <div class="plist" id="plist"></div><div id="addp" class="view" style="gap:8px"></div>
-   <h3>Movimentos e pastorais</h3><p class="small" style="margin:0">Pode marcar mais de um.</p>
-   <div class="chips" id="mchips">${MOV.map(([id,n])=>`<button class="chip ${mSel.mov.includes(id)?"on":""}" data-m="${id}" aria-pressed="${mSel.mov.includes(id)}">${n}</button>`).join("")}</div>
+   <h3>Movimentos e pastorais</h3><p class="small" style="margin:0">Se participa de mais de um, escolha um de cada vez.</p>
+   <select id="msel" class="movsel" aria-label="Escolher movimento ou pastoral"></select>
+   <div class="chips" id="mchips"></div>
    <p class="small">Usamos sua paróquia e seus movimentos só para somar seus terços aos da sua comunidade. Os totais mostram apenas números, nunca quem participa. Você pode mudar ou apagar essa escolha no Perfil.</p>
    <span class="small" id="merr" style="color:var(--rubric)"></span>
    <div class="row"><button class="btn ghost" id="mno">Agora não</button><button class="btn red grow" id="mok">Salvar</button></div></article>`;
   convText();
   $("mq").value=mQ;$("mq").oninput=e=>{mQ=e.target.value;renderPList()};
-  $("mchips").onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;const id=b.dataset.m;mSel.mov=mSel.mov.includes(id)?mSel.mov.filter(x=>x!==id):[...mSel.mov,id];b.classList.toggle("on");b.setAttribute("aria-pressed",mSel.mov.includes(id))};
-  $("mno").onclick=()=>{savePerfil({perguntou:true});closeModal()};
+  renderMovs();
+  $("msel").onchange=e=>{const id=e.target.value;if(id&&!mSel.mov.includes(id))mSel.mov=[...mSel.mov,id];renderMovs()};
+  $("mchips").onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;mSel.mov=mSel.mov.filter(x=>x!==b.dataset.m);renderMovs()};
+  $("mno").onclick=()=>{savePerfil({perguntou:true}).catch(()=>{});closeModal()};
+  $("mx").onclick=closeModal;
   $("mok").onclick=salvarComunidade;
   renderPList();
   if(keep&&$("np-n")){$("np-n").value=keep.n;$("np-c").value=keep.c;$("np-u").value=keep.u}}
+function renderMovs(){const sel=$("msel"),ch=$("mchips");if(!sel||!ch)return;
+  const rest=MOV.filter(([id])=>!mSel.mov.includes(id));
+  sel.innerHTML=`<option value="">${mSel.mov.length?"Adicionar outro movimento…":"Selecione o seu movimento…"}</option>`+rest.map(([id,n])=>`<option value="${id}">${esc(n)}</option>`).join("");
+  sel.hidden=!rest.length;
+  ch.innerHTML=mSel.mov.map(id=>`<button type="button" class="chip on" data-m="${id}" aria-label="Tirar ${esc(movName(id))}">${esc(movName(id))}<span class="x" aria-hidden="true">✕</span></button>`).join("")}
 function convText(){const el=$("mconv");if(!el||!convite)return;const cv=convite.tipo==="par"?parOf(convite.id):null;
     el.textContent=convite.tipo==="par"?(cv?`Reze com a comunidade da ${cv.nome}, em ${cv.cidade}. Seus terços vão somar com os dela.`:"Carregando a paróquia do convite…"):`Reze junto com ${movName(convite.id)}. Seus terços vão somar com os do movimento.`}
 function renderPList(){const box=$("plist");if(!box)return;const q=norm(mQ).trim(),sel=mSel.par&&parOf(mSel.par);
@@ -979,8 +995,8 @@ function renderPList(){const box=$("plist");if(!box)return;const q=norm(mQ).trim
     ad.innerHTML=`<label>Nome da paróquia<input id="np-n" maxlength="80" placeholder="Paróquia São Sebastião"></label>
     <div class="pair"><label>Cidade<input id="np-c" maxlength="60" list="np-cities"></label><label>Estado<select id="np-u">${UFS.map(u=>`<option ${u==="PR"?"selected":""}>${u}</option>`).join("")}</select></label></div>
     <datalist id="np-cities">${cities.map(c=>`<option value="${esc(c)}"></option>`).join("")}</datalist>
-    <button class="btn ghost" id="np-s" type="button">Adicionar paróquia</button>`;
-    $("np-n").value=mQ;$("np-s").onclick=addParoquia}}
+    <div class="row"><button class="btn ghost" id="np-x" type="button">Cancelar</button><button class="btn red grow" id="np-s" type="button">Adicionar paróquia</button></div>`;
+    $("np-n").value=mQ;$("np-s").onclick=addParoquia;$("np-x").onclick=()=>{mAdd=false;ad.innerHTML="";$("merr").textContent="";renderPList()}}}
 async function addParoquia(){const n=$("np-n").value.trim(),c=$("np-c").value.trim(),u=$("np-u").value;
   if(!n||!c){$("merr").textContent="Escreva o nome da paróquia e a cidade.";return}
   const dup=parqs.find(p=>norm(p.nome)===norm(n)&&norm(p.cidade)===norm(c));
@@ -988,7 +1004,7 @@ async function addParoquia(){const n=$("np-n").value.trim(),c=$("np-c").value.tr
   const id="u-"+rid(),b=$("np-s");b.disabled=true;
   try{await db.doc("paroquias/"+id).set({nome:n,cidade:c,uf:u,criadoPor:uid,criadoEm:Date.now()});
     if(!parOf(id))parqs.push({id,nome:n,cidade:c,uf:u});mSel.par=id;mAdd=false;mQ="";$("mq").value="";$("addp").innerHTML="";$("merr").textContent="";renderPList();track(x=>{x.paroquiasAdd=(x.paroquiasAdd||0)+1})}
-  catch(e){b.disabled=false;$("merr").textContent="Não foi possível adicionar agora. Tente de novo."}}
+  catch(e){b.disabled=false;$("merr").textContent="Não foi possível adicionar agora. Tente de novo."+ecode(e)}}
 async function salvarComunidade(){if(!mSel.par&&!mSel.mov.length){$("merr").textContent="Escolha sua paróquia ou pelo menos um movimento.";return}
   const b=$("mok");b.disabled=true;b.textContent="Salvando…";const antes=new Set(grupos());
   try{await savePerfil({paroquia:mSel.par,movimentos:mSel.mov,perguntou:true,consentiu:Date.now()});
@@ -996,7 +1012,7 @@ async function salvarComunidade(){if(!mSel.par&&!mSel.mov.length){$("merr").text
     if(comDone&&!comSkipped&&novos.length)await bumpCount(1,false,novos);
     track(x=>{x.comunidade=true;x.movs=mSel.mov.length});closeModal();renderCom();if(tab==="perfil")renderPerfil();
     if(steps[i]&&steps[i].k==="fim"){const a=alavs.find(x=>x.id===oferta);makeCard(a&&a.titulo,porQuem).then(s=>{if($("shot"))$("shot").src=s})}}
-  catch(e){b.disabled=false;b.textContent="Salvar";$("merr").textContent="Não foi possível salvar agora. Tente de novo."}}
+  catch(e){b.disabled=false;b.textContent="Salvar";$("merr").textContent="Não foi possível salvar agora. Tente de novo."+ecode(e)}}
 function shareRow(label,count,link,msg){const row=document.createElement("div");row.className="letter";
   const s=document.createElement("strong");s.textContent=label;const sp=document.createElement("span");sp.textContent=`${nT(count)} em ${mes()}`;
   const r=document.createElement("div");r.className="row";r.style.marginTop="6px";
