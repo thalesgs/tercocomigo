@@ -1049,7 +1049,7 @@ async function renderPainel(){
   if(!db||!uid){v.innerHTML=noAccess();return}
   v.innerHTML=`<p class="small">Carregando o painel…</p>`;
   let rows=[];
-  try{const s=await db.collection("testes").get();rows=s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){v.innerHTML=`<p class="small">Não foi possível carregar o painel agora. Tente de novo em instantes.</p>`;return}
+  try{const s=await db.collection("testes").get();rows=s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){v.innerHTML=`<p class="small">Não foi possível carregar o painel agora. Tente de novo em instantes.${esc(ecode(e))}</p>`;return}
   rows.sort((a,b)=>(b.ultima||0)-(a.ultima||0));
   const fbs=[];
   await Promise.all(rows.map(async r=>{try{const s=await db.collection(`testes/${r.id}/feedback`).get();s.docs.forEach(d=>fbs.push({uid:r.id,...d.data()}))}catch(e){}}));
