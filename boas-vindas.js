@@ -37,7 +37,7 @@
   window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e});
   function telaInicial(){
     if(standalone()||lsGet("terco-a2hs"))return;
-    const m=$("modal");if(m&&!m.hidden){setTimeout(telaInicial,3000);return}
+    const m=$("modal"),card=$("card");if((m&&!m.hidden)||document.documentElement.classList.contains("praying")||(card&&card.classList.contains("end"))){setTimeout(telaInicial,4000);return}
     lsSet("terco-a2hs","1");
     const passos=deferred?`<button class="btn red" id="a2-i" type="button">Adicionar à tela inicial</button>`
       :ios?`<ol class="small" style="margin:0;padding-left:1.2em;line-height:1.6"><li>Toque no botão <b>Compartilhar</b> (o quadrado com a seta para cima). No Safari ele fica na barra de baixo; no Chrome, na barra do endereço.</li><li>Escolha <b>Adicionar à Tela de Início</b>.</li><li>Toque em <b>Adicionar</b>.</li></ol>`
@@ -49,8 +49,14 @@
     if($("a2-i"))$("a2-i").onclick=async()=>{try{deferred.prompt();await deferred.userChoice}catch(e){}deferred=null;el.hidden=true};
     try{typeof track==="function"&&track(x=>{x.telaInicialSugerida=1})}catch(e){}
   }
-  function vigiarFim(){const card=$("card");if(!card)return;
-    new MutationObserver(()=>{if(card.classList.contains("end")&&!lsGet("terco-a2hs")&&!standalone())setTimeout(telaInicial,8000)}).observe(card,{attributes:true,attributeFilter:["class"]})}
+  /* Nunca por cima da tela final do terço: aparece quando a pessoa sai dela (Rezar de novo, outra aba, Sair)
+     ou na próxima vez que abrir o app, se já tiver concluído um terço. */
+  function vigiarFim(){const card=$("card");if(!card)return;let estavaNoFim=false;
+    new MutationObserver(()=>{const fim=card.classList.contains("end");
+      if(fim){estavaNoFim=true;lsSet("terco-fez1","1")}
+      else if(estavaNoFim){estavaNoFim=false;setTimeout(telaInicial,1200)}}).observe(card,{attributes:true,attributeFilter:["class"]});
+    document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("#tabs button");if(t&&estavaNoFim&&t.dataset.tab!=="rezar")setTimeout(telaInicial,1200)},true)}
+  function segundoAcesso(){if(!lsGet("terco-fez1"))return;const bv=$("bv");if(bv&&!bv.hidden){setTimeout(segundoAcesso,3000);return}telaInicial()}
 
-  window.addEventListener("load",()=>{setTimeout(boasVindas,900);vigiarFim()});
+  window.addEventListener("load",()=>{setTimeout(boasVindas,900);vigiarFim();setTimeout(segundoAcesso,3500)});
 })();

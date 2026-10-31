@@ -535,7 +535,7 @@ async function makeCard(alavTitulo,nome){
 }
 const adv=()=>{if(i<steps.length-1){trackAdv();i++;render();speak()}};
 $("next").onclick=adv;
-$("card").onclick=e=>{if(e.currentTarget.classList.contains("tap"))adv()};
+$("card").onclick=e=>{if(e.target.closest("button,a,input,textarea,select,label"))return;if(e.currentTarget.classList.contains("tap"))adv()};
 $("prev").onclick=()=>{if(i>0){i--;render();speak()}};
 
 /* ---------- Narração (voz do navegador) ---------- */
