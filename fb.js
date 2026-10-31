@@ -31,12 +31,17 @@
       if(!me)return false;
       /* Perfil público mínimo: só o nome que a pessoa escolheu e a foto do Google, se entrou com ele */
       const name=nome();
-      db.doc("perfis/"+me.uid).set({name:name||"",avatarUrl:me.photoURL||"",em:Date.now()},{merge:true}).catch(()=>{});
+      if(!lsGet(LSN)&&gName())lsSet(LSN,gName());
+      db.doc("perfis/"+me.uid).set({name:nome(),avatarUrl:gPhoto(),em:Date.now()},{merge:true}).catch(()=>{});
       if(isOwner())semear();
       return true}catch(e){console.warn("firebase",e);return false}
   })();
 
-  function nome(){return lsGet(LSN)||(me&&me.displayName)||""}
+  /* Quem entrou com o Google: o nome e a foto vêm da conta Google (na conta que começou anônima, ficam em providerData) */
+  const gProf=()=>me&&(me.providerData||[]).find(p=>p&&p.providerId==="google.com");
+  const gName=()=>(me&&me.displayName)||(gProf()&&gProf().displayName)||"";
+  const gPhoto=()=>(me&&me.photoURL)||(gProf()&&gProf().photoURL)||"";
+  function nome(){return lsGet(LSN)||gName()||""}
   function isOwner(){return !!(me&&me.email&&me.email.toLowerCase()===OWNER&&me.emailVerified!==false)}
   function avatar(n){const l=(n||"✠").trim().charAt(0).toUpperCase();
     return "data:image/svg+xml,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#f4ecda"/><text x="32" y="43" font-family="Georgia,serif" font-size="30" text-anchor="middle" fill="#a3221b">${l.replace(/[<&>"]/g,"")}</text></svg>`)}
@@ -48,7 +53,7 @@
 
   const userCap={
     id:async()=>me.uid,
-    me:async()=>{const n=nome();return{id:me.uid,name:n,avatarUrl:me.photoURL||avatar(n),isOwner:isOwner()}},
+    me:async()=>{const n=nome();return{id:me.uid,name:n,avatarUrl:gPhoto()||avatar(n),isOwner:isOwner()}},
     isOwner:async()=>isOwner(),
     profiles:async ids=>{const out={};await Promise.all([].concat(ids).filter(Boolean).map(async id=>{
       try{const s=await db.doc("perfis/"+id).get();const d=s.exists?s.data():{};out[id]={id,name:d.name||"",avatarUrl:d.avatarUrl||avatar(d.name)}}catch(e){}}));return out}
@@ -62,7 +67,10 @@
     info:()=>({anon:!me||me.isAnonymous,email:me&&me.email,name:nome()}),
     setName:async n=>{n=String(n||"").trim().slice(0,40);lsSet(LSN,n);if(db&&me)await db.doc("perfis/"+me.uid).set({name:n},{merge:true})},
     google:async()=>{const p=new firebase.auth.GoogleAuthProvider();
-      try{if(me&&me.isAnonymous)await me.linkWithPopup(p);else await auth.signInWithPopup(p)}
+      try{if(me&&me.isAnonymous){const r=await me.linkWithPopup(p);const g=r&&r.user&&(r.user.providerData||[]).find(x=>x.providerId==="google.com");
+          if(g&&!lsGet(LSN)&&g.displayName)lsSet(LSN,g.displayName);
+          if(g&&!r.user.displayName)await r.user.updateProfile({displayName:g.displayName||null,photoURL:g.photoURL||null}).catch(()=>{})}
+        else{const r=await auth.signInWithPopup(p);if(r&&r.user&&r.user.displayName&&!lsGet(LSN))lsSet(LSN,r.user.displayName)}}
       catch(e){if(e&&e.code==="auth/credential-already-in-use"&&e.credential)await auth.signInWithCredential(e.credential);else throw e}
       location.reload()},
     sair:async()=>{await auth.signOut();location.reload()}

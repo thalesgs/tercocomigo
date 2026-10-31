@@ -35,7 +35,7 @@ html,body{height:100%}
 html{font-size:calc(16px * var(--scale,1))}
 body{background:var(--paper);color:var(--ink);font-family:var(--text);font-size:1.125rem}
 .app{position:relative;max-width:500px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:14px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 100px}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 24px}
 .ribbon{position:absolute;top:0;right:max(28px,calc(env(safe-area-inset-right,0px) + 28px));width:16px;height:70px;background:var(--ribbon);
   clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);transition:background .4s}
 header{display:flex;flex-direction:column;align-items:center;gap:2px;padding-top:6px}
@@ -161,6 +161,14 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.95rem;color:var(--in
 /* Texto da oração: cabe na tela e rola por dentro; com o áudio, a frase atual acende e um fundo acompanha a palavra falada */
 /* O cartão da oração não rola: se o texto não couber, a letra diminui um pouco até caber dentro da moldura */
 .page.prayer{max-height:min(54vh,560px);overflow:hidden}
+/* Rezando: a tela fica do tamanho do celular. Nada de puxar a página; se a oração não couber, só o texto rola dentro da moldura */
+html.praying,html.praying body{overflow:hidden;overscroll-behavior:none}
+html.praying .app{min-height:0;height:100%;box-sizing:border-box;padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+html.praying nav.tabs{display:none}
+html.praying .page.prayer{flex:none}
+.page.prayer #txt.scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin-right:-8px;padding-right:8px}
+#next.timing{background-image:linear-gradient(to right,rgba(255,255,255,.22),rgba(255,255,255,.22));background-repeat:no-repeat;background-size:0% 100%;animation:tc-fill var(--d,10s) linear forwards}
+@keyframes tc-fill{to{background-size:100% 100%}}
 .karaoke .w{opacity:.32;transition:opacity .35s ease,background-color .2s ease;border-radius:3px}
 .karaoke .w.read{opacity:.85}
 .karaoke .w.ph{opacity:1}
@@ -356,10 +364,10 @@ function renderResume(){const el=$("resume");if(!el)return;const p=praying()?nul
   el.querySelector("em").textContent=p.label||`Mistérios ${p.set}`;
   $("rgo").onclick=resumir;$("rno").onclick=()=>{clearProg();renderResume();track(x=>{x.descartouRetomar=(x.descartouRetomar||0)+1})}}
 function resumir(){const p=loadProg();if(!p)return renderResume();
-  set=p.set;registered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();
+  set=p.set;registered=false;regErr=false;offered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();
   if(steps.length!==p.n||p.i<1||p.i>=steps.length-1){clearProg();restart();return}
   i=p.i;oferta=p.oferta||null;sets();render();track(x=>{x.retomou=(x.retomou||0)+1});window.scrollTo(0,0)}
-function restart(){i=0;registered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();sets();render()}
+function restart(){i=0;registered=false;regErr=false;offered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();sets();render()}
 
 /* ---------- Terço desenhado ----------
    Peças em ordem de reza: 0 crucifixo, 1 conta grande, 2-4 três pequenas, 5 medalha,
@@ -419,14 +427,16 @@ function renderOffer(){
 }
 function render(){
   const st=steps[i], card=$("card"); stepAt=Date.now(); card.scrollTop=0;
+  if(st.k==="fim")clearProg();
+  document.documentElement.classList.toggle("praying",praying());$("next").classList.remove("timing");
   beads(st); renderOffer();
   $("sets").hidden=praying();$("sair").hidden=!praying();document.querySelector("header").hidden=praying();renderCom();renderLemb();renderResume();
   $("stage").textContent=st.d<0?"Orações iniciais":st.d<5?(set===MIS?`${ORDF[st.d]} dezena · Misericórdia`:`${ORD[st.d]} mistério · ${set}`):"Encerramento";
   $("pct").textContent=Math.round(i/(steps.length-1)*100)+"%";
   $("prev").disabled=i===0;
   trackStep();
-  if(st.k==="fim")clearProg();else saveProg();
-  if(st.k==="fim"){$("nav").hidden=true;contarComunidade();finish();if(db&&uid&&!perfil.perguntou&&!perfil.paroquia&&!askedNow){askedNow=true;setTimeout(openModal,1800)}return}
+  if(st.k!=="fim")saveProg();
+  if(st.k==="fim"){$("nav").hidden=true;window.scrollTo(0,0);contarComunidade();finish();askCom();return}
   $("nav").hidden=false;
   if(st.k==="anuncio"){
     card.className="page tap prayer";
@@ -440,22 +450,27 @@ function render(){
 }
 /* O cartão da oração ocupa só o espaço que sobra na tela, acima dos botões e do anúncio; o texto rola por dentro. */
 function fitCard(){const c=$("card");if(!c||!c.classList.contains("prayer")){if(c){c.style.maxHeight="";c.style.height=""}return}
-  const top=c.getBoundingClientRect().top+window.scrollY,h=window.innerHeight-top-128;c.style.maxHeight=Math.max(230,h)+"px";
-  c.style.height=c.classList.contains("karaoke")?c.style.maxHeight:"";fitText()}
-function fitText(){const c=$("card"),o=$("txt");if(!c||!o)return;o.style.fontSize="";let fs=parseFloat(getComputedStyle(o).fontSize),n=0;
+  if(praying())window.scrollTo(0,0);
+  const nav=$("nav"),navH=nav&&!nav.hidden?nav.offsetHeight+14:0,pad=praying()?Math.max(12,parseFloat(getComputedStyle($("card").closest(".app")).paddingBottom)||12):24;
+  const h=window.innerHeight-c.getBoundingClientRect().top-navH-pad;c.style.maxHeight=Math.max(200,Math.floor(h))+"px";
+  /* Rezando, o cartão ocupa sempre a mesma altura: o botão "Próxima" não pula de lugar entre uma oração e outra */
+  c.style.height=praying()||c.classList.contains("karaoke")?c.style.maxHeight:"";fitText()}
+function fitText(){const c=$("card"),o=$("txt");if(!c||!o)return;o.classList.remove("scroll");o.style.fontSize="";let fs=parseFloat(getComputedStyle(o).fontSize),n=0;
   while(c.scrollHeight>c.clientHeight+1&&fs>=16&&n<20){fs-=1;o.style.fontSize=fs+"px";n++}
-  /* Letra no mínimo de 15 px: se ainda assim não couber, o cartão cresce e a página rola, sem o texto passar da moldura */
-  if(c.scrollHeight>c.clientHeight+1){o.style.fontSize="";c.style.maxHeight="none";c.style.height=""}}
+  /* Letra no mínimo de 15 px: se ainda assim não couber, o cartão fica do tamanho da tela e só o texto rola por dentro da moldura */
+  if(c.scrollHeight>c.clientHeight+1){c.style.height=c.style.maxHeight;o.classList.add("scroll")}}
 window.addEventListener("resize",()=>fitCard());
+function askCom(){if(listening||askedNow||!db||!uid||perfil.perguntou||perfil.paroquia)return;if(!steps[i]||steps[i].k!=="fim")return;askedNow=true;setTimeout(()=>{if(steps[i]&&steps[i].k==="fim")openModal()},1500)}
 async function finish(){
   const card=$("card"); card.className="page end";
   const mine=alavs.filter(a=>perfil.minhas.includes(a.id));
   const can=db&&uid;
   card.innerHTML=`<p class="rub">Terço concluído</p><h2>Que Nossa Senhora interceda por você</h2>
-   <div id="reg" class="checks">${can&&!registered?`
-     ${mine.length?`<p class="rub" style="text-align:center">Oferecer este terço em alavanca por:</p>${mine.map(a=>`<label><input type="checkbox" value="${a.id}" ${a.id===oferta?"checked":""}> <span data-t="${a.id}"></span></label>`).join("")}`:`<p class="small" style="text-align:center">Entre numa alavanca para oferecer seus terços por um pedido.</p>`}
+   <div id="reg" class="checks">${can?`
+     <p class="small" style="text-align:center">${registered?"✓ Terço registrado no seu caminho de oração.":regErr?"Não foi possível registrar agora.":"Registrando seu terço…"}</p>${regErr&&!registered?`<button class="btn ghost" id="retryreg">Tentar de novo</button>`:""}
+     ${offered?`<p class="small" style="text-align:center">✓ Oferecido em alavanca. Quem pediu vai ver.</p>`:mine.length?`<p class="rub" style="text-align:center">Quer oferecer este terço em alavanca?</p>${mine.map(a=>`<label><input type="checkbox" value="${a.id}" ${a.id===oferta?"checked":""}> <span data-t="${a.id}"></span></label>`).join("")}
      <label class="col">Uma palavra para quem pediu (opcional)<textarea id="msg" rows="2" maxlength="200" placeholder="Rezei com muito carinho por vocês."></textarea></label>
-     <button class="btn red" id="doreg">Registrar meu terço</button>`:registered?`<p class="small" style="text-align:center">Terço registrado. Sua oração foi somada.</p>`:""}</div>
+     <button class="btn red" id="doreg">Oferecer nas alavancas</button>`:`<p class="small" style="text-align:center">Entre numa alavanca para oferecer seus terços por um pedido.</p>`}`:""}</div>
    <p class="small" id="comfim"></p>
    <div class="checks"><label class="col">Rezou por alguém? Escreva o nome e mande o card para essa pessoa<input id="porquem" maxlength="40" placeholder="Ex.: Dona Maria"></label><button class="btn ghost" id="gencard">Colocar o nome no card</button></div>
    <img id="shot" alt="Card para compartilhar">
@@ -469,44 +484,53 @@ async function finish(){
   $("porquem").value=porQuem;
   $("gencard").onclick=async()=>{porQuem=$("porquem").value.trim();track(x=>{x.rezeiPorVoce=(x.rezeiPorVoce||0)+1});if(porQuem&&db&&uid)mesInc("porVoce");const a=alavs.find(x=>x.id===oferta);$("shot").src=await makeCard(a&&a.titulo,porQuem)};
   renderCom();
-  const doreg=$("doreg"); if(doreg)doreg.onclick=registrar;
+  const doreg=$("doreg"); if(doreg)doreg.onclick=oferecer;
+  if($("retryreg"))$("retryreg").onclick=()=>{regErr=false;registrarTotal()};
+  if(can&&!registered&&!regBusy&&!regErr)registrarTotal();
   const first=alavs.find(a=>a.id===oferta);
   const src=await makeCard(first&&first.titulo,porQuem); if($("shot"))$("shot").src=src;
 }
-async function registrar(){
-  const btn=$("doreg");btn.disabled=true;btn.textContent="Registrando…";
-  const ids=[...document.querySelectorAll("#reg input[type=checkbox]:checked")].map(c=>c.value);
-  const msg=($("msg").value||"").trim().slice(0,200);
-  try{
-    for(const aid of ids){await db.collection(`alavancas/${aid}/oracoes`).doc(rid()).set({uid,em:Date.now(),misterios:set,msg})}
-    const t=ymd(new Date()),y=ymd(new Date(Date.now()-864e5));
+/* Ao terminar, o terço entra sozinho no caminho de oração da pessoa (total e dias seguidos). */
+let regBusy=false,regErr=false,offered=false;
+async function registrarTotal(){if(regBusy||registered)return;regBusy=true;
+  try{const t=ymd(new Date()),y=ymd(new Date(Date.now()-864e5));
     const streak=perfil.lastDay===t?(perfil.streak||1):perfil.lastDay===y?(perfil.streak||0)+1:1;
-    const ofs={...(perfil.ofertas||{})};ids.forEach(x=>{ofs[x]=t});
-    await savePerfil({total:(perfil.total||0)+1,streak,lastDay:t,ofertas:ofs});
-    track(x=>{x.registrados=(x.registrados||0)+1});if(ids.length)mesInc("alavancas");
-    registered=true; if(ids.length)oferta=ids[0]; finish();
-  }catch(e){btn.disabled=false;btn.textContent="Tentar de novo";
-    $("reg").insertAdjacentHTML("beforeend",`<p class="small">${e&&e.code==="invalid_argument"?"Sua conta só pode ver esta página. Peça acesso de Colaborador a quem compartilhou.":"Não foi possível registrar agora. Verifique a conexão e tente de novo."}</p>`)}
+    await savePerfil({total:(perfil.total||0)+1,streak,lastDay:t});
+    track(x=>{x.registrados=(x.registrados||0)+1});registered=true}
+  catch(e){regErr=true}
+  regBusy=false;if(steps[i]&&steps[i].k==="fim")finish()}
+/* Oferecer em alavanca é um gesto à parte: deixa a carta para quem pediu. */
+async function oferecer(){
+  const btn=$("doreg"),ids=[...document.querySelectorAll("#reg input[type=checkbox]:checked")].map(c=>c.value);
+  const msg=($("msg").value||"").trim().slice(0,200);
+  if(!ids.length){btn.textContent="Marque pelo menos uma alavanca";setTimeout(()=>{if($("doreg"))$("doreg").textContent="Oferecer nas alavancas"},1800);return}
+  btn.disabled=true;btn.textContent="Oferecendo…";
+  try{for(const aid of ids){await db.collection(`alavancas/${aid}/oracoes`).doc(rid()).set({uid,em:Date.now(),misterios:set,msg})}
+    const t=ymd(new Date()),ofs={...(perfil.ofertas||{})};ids.forEach(x=>{ofs[x]=t});await savePerfil({ofertas:ofs});
+    mesInc("alavancas");track(x=>{x.ofereceu=(x.ofereceu||0)+1});offered=true;oferta=ids[0];finish()}
+  catch(e){btn.disabled=false;btn.textContent="Tentar de novo";$("reg").insertAdjacentHTML("beforeend",`<p class="small">Não foi possível oferecer agora. Verifique a conexão e tente de novo.${esc(ecode(e))}</p>`)}
 }
 function wrap(g,text,x,y,max,lh){const w=text.split(" ");let line="",yy=y;for(const p of w){const t=line?line+" "+p:p;if(g.measureText(t).width>max&&line){g.fillText(line,x,yy);line=p;yy+=lh}else line=t}g.fillText(line,x,yy);return yy}
 async function makeCard(alavTitulo,nome){
   try{await Promise.all([document.fonts.load("700 80px Cinzel"),document.fonts.load("italic 80px 'EB Garamond'")])}catch(e){}
-  const c=document.createElement("canvas");c.width=1080;c.height=1920;const g=c.getContext("2d");
-  g.fillStyle="#f4ecda";g.fillRect(0,0,1080,1920);
-  g.strokeStyle="#a3221b";g.lineWidth=4;g.strokeRect(60,60,960,1800);g.lineWidth=1.5;g.strokeRect(78,78,924,1764);
-  g.fillStyle=RIBBON[set];g.beginPath();g.moveTo(860,60);g.lineTo(920,60);g.lineTo(920,330);g.lineTo(890,300);g.lineTo(860,330);g.closePath();g.fill();
-  g.textAlign="center";g.fillStyle="#a3221b";g.font="700 150px Cinzel, serif";g.fillText("✠",540,330);
-  g.fillStyle="#231c14";g.font="700 58px Cinzel, serif";g.fillText("HOJE REZEI O TERÇO",540,470);
-  drawRosary(g,540-150*1.75,500,1.75);g.textAlign="center";
-  g.fillStyle="#a3221b";g.font=set===MIS?"italic 80px 'EB Garamond', serif":"italic 92px 'EB Garamond', serif";g.fillText(set===MIS?"Terço da Misericórdia":"Mistérios "+set,540,1220);
-  g.fillStyle="#6b5e4c";g.font="italic 48px 'EB Garamond', serif";
-  g.fillText(new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"}),540,1300);
-  if(nome){g.fillStyle="#a3221b";g.font="500 36px Cinzel, serif";g.fillText("REZEI ESTE TERÇO POR VOCÊ",540,1440);
-    g.fillStyle="#231c14";g.font="italic 84px 'EB Garamond', serif";wrap(g,nome,540,1550,820,90)}
-  else if(alavTitulo){g.fillStyle="#a3221b";g.font="500 36px Cinzel, serif";g.fillText("EM ALAVANCA DE ORAÇÃO POR",540,1450);
-    g.fillStyle="#231c14";g.font="italic 62px 'EB Garamond', serif";wrap(g,alavTitulo,540,1540,820,74)}
-  const cp=minhaPar(),cm=cp?sumG("p:"+cp.id):comMonth();if(cm>0){g.fillStyle="#6b5e4c";g.font="italic 40px 'EB Garamond', serif";wrap(g,cp?`${cp.nome}: ${cm} ${cm===1?"terço":"terços"} em ${mes()}`:`Junto com a comunidade: ${cm} ${cm===1?"terço":"terços"} em ${mes()}`,540,1680,860,48)}
-  g.fillStyle="#231c14";g.font="700 44px Cinzel, serif";g.fillText("✠ TERÇO COMIGO",540,1800);
+  /* 1080 x 1350 (4:5): o WhatsApp mostra a imagem inteira na conversa e nos Stories ela cabe com folga */
+  const W=1080,H=1350,c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d");
+  g.fillStyle="#f4ecda";g.fillRect(0,0,W,H);
+  g.strokeStyle="#a3221b";g.lineWidth=4;g.strokeRect(50,50,W-100,H-100);g.lineWidth=1.5;g.strokeRect(66,66,W-132,H-132);
+  g.fillStyle=RIBBON[set];g.beginPath();g.moveTo(870,50);g.lineTo(926,50);g.lineTo(926,250);g.lineTo(898,224);g.lineTo(870,250);g.closePath();g.fill();
+  g.textAlign="center";g.fillStyle="#a3221b";g.font="700 104px Cinzel, serif";g.fillText("✠",540,205);
+  g.fillStyle="#231c14";g.font="700 54px Cinzel, serif";g.fillText("HOJE REZEI O TERÇO",540,300);
+  drawRosary(g,540-150*1.12,318,1.12);g.textAlign="center";
+  g.fillStyle="#a3221b";g.font=set===MIS?"italic 72px 'EB Garamond', serif":"italic 80px 'EB Garamond', serif";g.fillText(set===MIS?"Terço da Misericórdia":"Mistérios "+set,540,836);
+  g.fillStyle="#6b5e4c";g.font="italic 44px 'EB Garamond', serif";
+  g.fillText(new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"}),540,898);
+  let y=982;
+  if(nome){g.fillStyle="#a3221b";g.font="500 32px Cinzel, serif";g.fillText("REZEI ESTE TERÇO POR VOCÊ",540,y);
+    g.fillStyle="#231c14";g.font="italic 74px 'EB Garamond', serif";y=wrap(g,nome,540,y+80,820,78)+62}
+  else if(alavTitulo){g.fillStyle="#a3221b";g.font="500 32px Cinzel, serif";g.fillText("EM ALAVANCA DE ORAÇÃO POR",540,y);
+    g.fillStyle="#231c14";g.font="italic 56px 'EB Garamond', serif";y=wrap(g,alavTitulo,540,y+70,820,64)+60}
+  const cp=minhaPar(),cm=cp?sumG("p:"+cp.id):comMonth();if(cm>0&&y<=1180){g.fillStyle="#6b5e4c";g.font="italic 36px 'EB Garamond', serif";wrap(g,cp?`${cp.nome}: ${cm} ${cm===1?"terço":"terços"} em ${mes()}`:`Junto com a comunidade: ${cm} ${cm===1?"terço":"terços"} em ${mes()}`,540,y,860,44)}
+  g.fillStyle="#231c14";g.font="700 40px Cinzel, serif";g.fillText("✠ TERÇO COMIGO",540,1252);
   return c.toDataURL("image/png");
 }
 const adv=()=>{if(i<steps.length-1){trackAdv();i++;render();speak()}};
@@ -530,7 +554,7 @@ function speak(){
   if(!listening)return;
   const my=++gen;if(synth&&(synth.speaking||synth.pending))synth.cancel();player.pause();clearTimeout(waitT);waitOn=false;clearTimeout(advTimer);advTimer=null;lastAct=Date.now();utts=[];
   const st=steps[i],clips=clipsFor(st);
-  if(st.k==="fim"){if(hasClips(clips))playClips(clips,my,st,()=>{if(my===gen)stopListen()});else stopListen();return}
+  if(st.k==="fim"){if(hasClips(clips))playClips(clips,my,st,()=>{if(my===gen){stopListen();askCom()}});else{stopListen();askCom()}return}
   if(hasClips(clips)){playClips(clips,my,st);return}
   /* Mistérios ainda sem voz gravada: nenhuma narração. O anúncio (e a passagem, se escolhida) fica na tela pelo tempo
      de leitura e o terço segue sozinho. Depois que a voz gravada carregou, a voz do celular não entra em nenhum trecho:
@@ -602,9 +626,11 @@ function waitFor(name,my,cb){const a=new Audio(AUDIO[name]);let started=false;wa
   a.addEventListener("loadedmetadata",go);setTimeout(go,1500)}
 const nWords=t=>String(t||"").split(/\s+/).filter(Boolean).length;
 function readMs(st){const r=+$("rate").value||1;
-  if(st.k==="anuncio")return modeOf()==="pass"?Math.max(12000,nWords(st.title+" "+PASS[set][st.d][1])*420/r+4000):10000;
+  if(st.k==="anuncio")return modeOf()==="pass"?Math.max(10000,nWords(PASS[set][st.d][1])*300/r+3000):9000;
   return P[st.k]?Math.max(2500,nWords(txtOf(st))*380/r+800):2500}
-function advanceAfter(my,st,read){advTimer=setTimeout(()=>{advTimer=null;if(my!==gen||!listening)return;
+function advanceAfter(my,st,read){
+  if(read&&st.k==="anuncio"){const b=$("next"),ms=readMs(st);b.style.setProperty("--d",ms+"ms");b.classList.remove("timing");void b.offsetWidth;b.classList.add("timing")}
+  advTimer=setTimeout(()=>{advTimer=null;if(my!==gen||!listening)return;
   if(!read&&steps[i]&&steps[i].half===0&&steps[i+1]&&steps[i+1].k===steps[i].k)i++;
   if(i<steps.length-1){i++;render();speak()}},read?readMs(st):st.k==="anuncio"?(modeOf()==="pass"?3500:9000):700)}
 try{const r=localStorage.getItem("terco-resp");if(r)$("resp").value=r}catch(e){}
@@ -624,7 +650,7 @@ $("listen").onclick=()=>{
 document.addEventListener("visibilitychange",()=>{if(document.hidden){if(listening){pausedByHide=true;stopListen()}}else if(listening)wake()});
 /* Se a voz ficou muda por muito tempo sem nenhum aviso, o botão volta para "Continuar" em vez de ficar mostrando "Pausar". */
 setInterval(()=>{if(!listening||advTimer||waitOn||!player.paused||(synth&&(synth.speaking||synth.pending)))return;if(Date.now()-lastAct>12000){pausedByHide=true;stopListen()}},2000);
-$("adjbtn").onclick=()=>{const a=$("adj");a.hidden=!a.hidden;$("adjbtn").setAttribute("aria-expanded",String(!a.hidden))};
+$("adjbtn").onclick=()=>{const a=$("adj");a.hidden=!a.hidden;$("adjbtn").setAttribute("aria-expanded",String(!a.hidden));fitCard()};
 $("voice").onchange=()=>{if(listening)speak()};
 $("rate").onchange=()=>{if(listening)speak()};
 try{const m=localStorage.getItem("terco-modo");if(m)$("mode").value=m}catch(e){}
@@ -1089,6 +1115,7 @@ async function renderPainel(){
 $("day").textContent=`${DAYS[today]} · Mistérios ${BY_DAY[today]}`;
 restart();
 </script>
+<script src="boas-vindas.js"></script>
 <script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>
