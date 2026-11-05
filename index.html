@@ -399,7 +399,7 @@ function sets(){const day=BY_DAY[today],other=set!==MIS&&set!==day;
 $("sets").onclick=e=>{const b=e.target.closest("button");if(!b)return;
   if(b.id==="dayset"){const l=$("setlist");l.hidden=!l.hidden;b.setAttribute("aria-expanded",String(!l.hidden));return}
   const s=b.dataset.s;if(!s)return;set=s;stopListen();restart()};
-$("sair").onclick=()=>{saveProg();pausedByHide=false;stopListen();oferta=null;restart();window.scrollTo(0,0)};
+$("sair").onclick=()=>{if(i>0)saveProg();else clearProg();pausedByHide=false;stopListen();oferta=null;restart();window.scrollTo(0,0)};
 /* ---------- Continuar de onde parei ----------
    A cada oração o ponto do terço fica guardado no aparelho. Se o app fechar, travar ou o celular desligar,
    ao abrir de novo aparece o cartão para retomar. Vale por 36 horas. */
@@ -417,8 +417,8 @@ function renderResume(){const el=$("resume");if(!el)return;const p=praying()?nul
 function resumir(){const p=loadProg();if(!p)return renderResume();
   set=p.set;registered=false;regErr=false;offered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();
   if(steps.length!==p.n||p.i<1||p.i>=steps.length-1){clearProg();restart();return}
-  i=p.i;oferta=p.oferta||null;sets();render();track(x=>{x.retomou=(x.retomou||0)+1});window.scrollTo(0,0)}
-function restart(){i=0;registered=false;regErr=false;offered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();sets();render()}
+  i=p.i;emTerco=true;oferta=p.oferta||null;sets();render();track(x=>{x.retomou=(x.retomou||0)+1});window.scrollTo(0,0)}
+function restart(){i=0;emTerco=false;registered=false;regErr=false;offered=false;runOn=false;runDone=false;comDone=false;comSkipped=false;porQuem="";build();sets();render()}
 
 /* ---------- Terço desenhado ----------
    Peças em ordem de reza: 0 crucifixo, 1 conta grande, 2-4 três pequenas, 5 medalha,
@@ -584,10 +584,10 @@ async function makeCard(alavTitulo,nome){
   g.fillStyle="#231c14";g.font="700 40px Cinzel, serif";g.fillText("✠ TERÇO COMIGO",540,1252);
   return c.toDataURL("image/png");
 }
-const adv=()=>{if(i<steps.length-1){trackAdv();i++;render();speak()}};
+const adv=()=>{if(i<steps.length-1){trackAdv();emTerco=true;i++;render();speak()}};
 $("next").onclick=adv;
 $("card").onclick=e=>{if(e.target.closest("button,a,input,textarea,select,label"))return;if(e.currentTarget.classList.contains("tap"))adv()};
-$("prev").onclick=()=>{if(i>0){i--;render();speak()}};
+$("prev").onclick=()=>{if(i>0){emTerco=true;i--;render();speak()}};
 
 /* ---------- Narração (voz do navegador) ---------- */
 const synth=window.speechSynthesis; let listening=false, gen=0, voices=[];
@@ -707,7 +707,7 @@ function stopListen(){listening=false;gen++;clearTimeout(advTimer);advTimer=null
 $("listen").onclick=()=>{
   if(!synth&&!Object.keys(AUDIO).length){$("ahint").textContent="Este navegador não tem voz disponível.";return}
   if(listening){pausedByHide=false;stopListen();return}
-  pausedByHide=false;listening=true;track(x=>{x.narracao=(x.narracao||0)+1});const b=$("listen");b.classList.add("on");b.textContent="Pausar";b.setAttribute("aria-pressed","true");wake();speak();
+  pausedByHide=false;listening=true;if(!emTerco&&steps[i]&&steps[i].k!=="fim"){emTerco=true;render()}track(x=>{x.narracao=(x.narracao||0)+1});const b=$("listen");b.classList.add("on");b.textContent="Pausar";b.setAttribute("aria-pressed","true");wake();speak();
 };
 /* Ao sair do app o celular corta a voz: o áudio pausa de verdade e o botão vira "Continuar", que retoma a oração atual do começo. */
 document.addEventListener("visibilitychange",()=>{if(document.hidden){if(listening){pausedByHide=true;stopListen()}}else if(listening)wake()});
@@ -931,7 +931,9 @@ const grupos=()=>[...(perfil.paroquia?["p:"+perfil.paroquia]:[]),...(perfil.movi
 const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 const nT=n=>`${n} ${n===1?"terço":"terços"}`;
 /* Durante a oração o topo se recolhe para o terço e o texto caberem na tela. */
-function praying(){return i>0&&steps[i]&&steps[i].k!=="fim"}
+/* "Dentro do terço": começa ao tocar em Ouvir ou Próxima, inclusive na Abertura; termina no fim, em Sair ou ao recomeçar */
+let emTerco=false;
+function praying(){return (emTerco||i>0)&&!!steps[i]&&steps[i].k!=="fim"}
 function renderCom(){const el=$("com");if(!db||!uid||praying()){el.hidden=true;if(!db||!uid)return}else el.hidden=false;const m=comMonth(),p=minhaPar();
   if(p){el.innerHTML=`✠ <span id="cpn"></span> já rezou <b>${sumG("p:"+p.id)}</b> ${sumG("p:"+p.id)===1?"terço":"terços"} em ${mes()}<small>Comunidade Terço Comigo: ${nT(m)}</small>`;$("cpn").textContent=p.nome}
   else el.innerHTML=(m?`✠ Nossa comunidade já rezou <b>${m}</b> ${m===1?"terço":"terços"} em ${mes()}`:`✠ Seja o primeiro da comunidade a rezar em ${mes()}`)+`<small><button class="linkbtn" id="cjoin">Somar meus terços aos da minha paróquia</button></small>`;
