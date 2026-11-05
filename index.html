@@ -48,6 +48,14 @@ nav.tabs button.on{color:var(--rubric);border-bottom-color:var(--rubric)}
 .view{display:flex;flex-direction:column;gap:14px}
 .sets{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .sets button{font:500 .72rem var(--display);letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;border-radius:2px;border:1px solid var(--rule);background:transparent;color:var(--ink-soft);cursor:pointer}
+.outras{display:flex;flex-direction:column;gap:8px;margin-top:2px}
+.outras .rub{margin:0}
+.outras .row.wrap{flex-wrap:wrap;gap:8px}
+.outras button{font:500 .72rem var(--display,inherit);letter-spacing:.08em;text-transform:uppercase;padding:9px 12px;border:1px solid var(--rule);background:var(--leaf);color:var(--ink);cursor:pointer;border-radius:2px}
+#ora .oratio{white-space:pre-line}
+#ora .oratio::first-letter{float:none;font:inherit;color:inherit;margin:0;padding:0;line-height:inherit}
+#ora .oratio[data-p="0"]::first-letter{color:var(--rubric);font-weight:600}
+#ora .now{background:color-mix(in srgb,var(--rubric) 10%,transparent);outline:1px solid color-mix(in srgb,var(--rubric) 35%,transparent);outline-offset:4px}
 .sets button .dur{display:block;font:italic 400 .82rem var(--text);letter-spacing:0;text-transform:none;opacity:.8;margin-top:2px}
 .prece{display:flex;flex-direction:column;gap:6px;align-items:stretch}
 .sets button.on{border-color:var(--rubric);color:var(--rubric);background:var(--leaf)}
@@ -209,6 +217,7 @@ html.praying .page.prayer{flex:none}
     <div class="offer" id="resume" hidden></div>
     <div class="offer" id="lemb" hidden></div>
     <div class="sets" id="sets"></div>
+    <div class="outras" id="outras"><span class="rub">Outras orações</span><div class="row wrap" id="outlist"></div></div>
     <div class="offer" id="offer" hidden></div>
     <div class="audio">
       <button id="listen" aria-pressed="false">Ouvir</button>
@@ -218,6 +227,8 @@ html.praying .page.prayer{flex:none}
       <select id="voice" aria-label="Voz"></select>
       <select id="rate" aria-label="Velocidade"><option value="0.8">Devagar</option><option value="1" selected>Normal</option><option value="1.2">Rápido</option></select>
       <select id="mode" aria-label="No anúncio do mistério"><option value="pass" selected>Mistério com passagem bíblica</option><option value="sil">Mistério em silêncio</option></select>
+      <select id="vgrav" aria-label="Voz que reza" hidden><option value="thales" selected>Voz: Thales</option><option value="feminina">Voz: Jenifer</option></select>
+      <select id="ladopt" aria-label="Ladainha no fim do terço"><option value="nao" selected>Sem a Ladainha</option><option value="sim">Com a Ladainha de Nossa Senhora</option></select>
       <select id="resp" aria-label="Como rezar com a voz gravada"><option value="todo" selected>Voz gravada reza tudo</option><option value="resp">Eu respondo a segunda parte</option></select>
       <span class="small" id="ahint">Voz do próprio celular, só para teste. Com o áudio ligado, o terço avança sozinho e a tela não apaga.</span>
       </div>
@@ -249,6 +260,10 @@ html.praying .page.prayer{flex:none}
 <script src="fb.js"></script>
 <script>
 const P={
+ lad1:["Ladainha de Nossa Senhora","Invoca-se a Santíssima Trindade.","Senhor, tende piedade de nós.\nJesus Cristo, tende piedade de nós.\nSenhor, tende piedade de nós.\nJesus Cristo, ouvi-nos.\nJesus Cristo, atendei-nos.\nDeus Pai do Céu, tende piedade de nós.\nDeus Filho, Redentor do mundo, tende piedade de nós.\nDeus Espírito Santo, tende piedade de nós.\nSantíssima Trindade, que sois um só Deus, tende piedade de nós."],
+ lad2:["Ladainha de Nossa Senhora","Invocações a Maria, Mãe de Deus.","Santa Maria, rogai por nós.\nSanta Mãe de Deus, rogai por nós.\nSanta Virgem das virgens, rogai por nós.\nMãe de Jesus Cristo, rogai por nós.\nMãe da Igreja, rogai por nós.\nMãe de misericórdia, rogai por nós.\nMãe da divina graça, rogai por nós.\nMãe da esperança, rogai por nós.\nMãe puríssima, rogai por nós.\nMãe castíssima, rogai por nós.\nMãe sempre virgem, rogai por nós.\nMãe imaculada, rogai por nós.\nMãe digna de amor, rogai por nós.\nMãe admirável, rogai por nós.\nMãe do bom conselho, rogai por nós.\nMãe do Criador, rogai por nós.\nMãe do Salvador, rogai por nós.\nVirgem prudentíssima, rogai por nós.\nVirgem venerável, rogai por nós.\nVirgem louvável, rogai por nós.\nVirgem poderosa, rogai por nós.\nVirgem clemente, rogai por nós.\nVirgem fiel, rogai por nós."],
+ lad3:["Ladainha de Nossa Senhora","Invocações a Maria, Rainha.","Espelho de justiça, rogai por nós.\nSede da sabedoria, rogai por nós.\nCausa da nossa alegria, rogai por nós.\nVaso espiritual, rogai por nós.\nVaso honorífico, rogai por nós.\nVaso insigne de devoção, rogai por nós.\nRosa mística, rogai por nós.\nTorre de Davi, rogai por nós.\nTorre de marfim, rogai por nós.\nCasa de ouro, rogai por nós.\nArca da aliança, rogai por nós.\nPorta do céu, rogai por nós.\nEstrela da manhã, rogai por nós.\nSaúde dos enfermos, rogai por nós.\nRefúgio dos pecadores, rogai por nós.\nConforto dos migrantes, rogai por nós.\nConsoladora dos aflitos, rogai por nós.\nAuxílio dos cristãos, rogai por nós.\nRainha dos Anjos, rogai por nós.\nRainha dos Patriarcas, rogai por nós.\nRainha dos Profetas, rogai por nós.\nRainha dos Apóstolos, rogai por nós.\nRainha dos Mártires, rogai por nós.\nRainha dos Confessores, rogai por nós.\nRainha das Virgens, rogai por nós.\nRainha de todos os Santos, rogai por nós.\nRainha concebida sem pecado original, rogai por nós.\nRainha elevada ao céu, rogai por nós.\nRainha do sacratíssimo Rosário, rogai por nós.\nRainha da família, rogai por nós.\nRainha da paz, rogai por nós."],
+ lad4:["Ladainha de Nossa Senhora","Cordeiro de Deus e oração final.","Cordeiro de Deus, que tirais os pecados do mundo, perdoai-nos, Senhor.\nCordeiro de Deus, que tirais os pecados do mundo, ouvi-nos, Senhor.\nCordeiro de Deus, que tirais os pecados do mundo, tende piedade de nós.\nRogai por nós, santa Mãe de Deus, para que sejamos dignos das promessas de Cristo.\nOremos.\nSenhor Deus, nós vos suplicamos que concedais aos vossos servos perpétua saúde de alma e de corpo; e que, pela gloriosa intercessão da bem-aventurada sempre Virgem Maria, sejamos livres da presente tristeza e gozemos da eterna alegria.\nPor Cristo, nosso Senhor.\nAmém."],
  abre:["Abertura","Quem puxa o terço abre a oração e o oferece.","Vamos rezar o terço. Coloquemo-nos na presença de Deus.\nSenhor, nós vos oferecemos este terço pelas nossas intenções, pela Igreja e por todos os que pediram as nossas orações."],
  cruz:["Sinal da Cruz","Faz-se o sinal da cruz.","Pelo sinal da Santa Cruz, livrai-nos, Deus, Nosso Senhor, dos nossos inimigos.\nEm nome do Pai, do Filho e do Espírito Santo. Amém."],
  credo:["Creio","Segurando o crucifixo, reza-se o Creio.","Creio em Deus Pai todo-poderoso, criador do céu e da terra; e em Jesus Cristo, seu único Filho, Nosso Senhor, que foi concebido pelo poder do Espírito Santo; nasceu da Virgem Maria; padeceu sob Pôncio Pilatos, foi crucificado, morto e sepultado; desceu à mansão dos mortos; ressuscitou ao terceiro dia; subiu aos céus, está sentado à direita de Deus Pai todo-poderoso, donde há de vir a julgar os vivos e os mortos. Creio no Espírito Santo, na Santa Igreja Católica, na comunhão dos santos, na remissão dos pecados, na ressurreição da carne, na vida eterna. Amém."],
@@ -338,10 +353,36 @@ function build(){
   });
   steps.push({k:"agrad",d:5});
   steps.push({k:"salve",d:5,half:0});steps.push({k:"salve",d:5,half:1});
+  if(comLadainha())for(let k=1;k<=4;k++)steps.push({k:"lad"+k,d:5,n:k,of:4});
   steps.push({k:"fim",d:5});
   $("ribbon").style.background=RIBBON[set];
 }
 /* Escolha do terço: "Terço do dia" já vem com o mistério de hoje e abre a lista dos quatro; ao lado, a Misericórdia. */
+/* Outras orações: uma oração curta, com o texto na tela e a voz gravada escolhida */
+const ORAS={"angelus": {"t": "Ângelus", "r": "Reza-se às 6h, ao meio-dia e às 18h, lembrando a Encarnação do Senhor.", "partes": [["O Anjo do Senhor anunciou a Maria. E ela concebeu do Espírito Santo.", ["angelus-1"]], ["Ave Maria, cheia de graça, o Senhor é convosco; bendita sois vós entre as mulheres, e bendito é o fruto do vosso ventre, Jesus. Santa Maria, Mãe de Deus, rogai por nós, pecadores, agora e na hora de nossa morte. Amém.", ["ave-maria"]], ["Eis aqui a serva do Senhor. Faça-se em mim segundo a vossa palavra.", ["angelus-2"]], ["Ave Maria, cheia de graça, o Senhor é convosco; bendita sois vós entre as mulheres, e bendito é o fruto do vosso ventre, Jesus. Santa Maria, Mãe de Deus, rogai por nós, pecadores, agora e na hora de nossa morte. Amém.", ["ave-maria"]], ["E o Verbo se fez carne. E habitou entre nós.", ["angelus-3"]], ["Ave Maria, cheia de graça, o Senhor é convosco; bendita sois vós entre as mulheres, e bendito é o fruto do vosso ventre, Jesus. Santa Maria, Mãe de Deus, rogai por nós, pecadores, agora e na hora de nossa morte. Amém.", ["ave-maria"]], ["Rogai por nós, santa Mãe de Deus, para que sejamos dignos das promessas de Cristo. Oremos. Infundi, Senhor, nós vos pedimos, a vossa graça em nossas almas, para que nós, que pela anunciação do Anjo viemos ao conhecimento da encarnação de Jesus Cristo, vosso Filho, pela sua paixão e morte sejamos conduzidos à glória da ressurreição. Pelo mesmo Cristo, Senhor nosso. Amém.", ["angelus-4"]]]}, "sao-miguel": {"t": "São Miguel Arcanjo", "r": "Oração de proteção, rezada por Leão XIII ao fim da Missa.", "partes": [["São Miguel Arcanjo, defendei-nos no combate; sede o nosso refúgio contra as maldades e ciladas do demônio. Ordene-lhe Deus, instantemente o pedimos; e vós, príncipe da milícia celeste, pela virtude divina, precipitai no inferno a Satanás e aos outros espíritos malignos, que andam pelo mundo para perder as almas. Amém.", ["sao-miguel"]]]}, "o-senhora-minha": {"t": "Consagração a Nossa Senhora", "r": "Oferecimento diário de si mesmo a Maria.", "partes": [["Ó Senhora minha, ó minha Mãe, eu me ofereço todo a vós, e em prova da minha devoção para convosco, vos consagro neste dia meus olhos, meus ouvidos, minha boca, meu coração e inteiramente todo o meu ser. E porque assim sou vosso, ó incomparável Mãe, guardai-me e defendei-me como coisa e propriedade vossa. Amém.", ["o-senhora-minha"]]]}, "santo-anjo": {"t": "Santo Anjo", "r": "Oração ao Anjo da Guarda.", "partes": [["Santo Anjo do Senhor, meu zeloso guardador, se a ti me confiou a piedade divina, sempre me rege, me guarda, me governa e me ilumina. Amém.", ["santo-anjo"]]]}};
+let oraPlayer=null,oraGen=0;
+function renderOutras(){const b=$("outlist");if(!b)return;b.innerHTML=Object.entries(ORAS).map(([id,o])=>`<button type="button" data-ora="${id}">${esc(o.t)}</button>`).join("");$("outras").hidden=praying()||!window.TERCO_VOZES;$("ladopt").hidden=!window.TERCO_VOZES}
+function pararOra(){oraGen++;if(oraPlayer){oraPlayer.pause();oraPlayer=null}const b=$("ora-ouvir");if(b){b.textContent="Ouvir";b.classList.remove("on")}document.querySelectorAll("#ora .oratio").forEach(e=>e.classList.remove("now"))}
+function abrirOra(id){const o=ORAS[id];if(!o)return;stopListen();pararOra();
+  let el=$("ora");if(!el){el=document.createElement("div");el.id="ora";el.className="modal";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");document.body.append(el)}
+  el.innerHTML=`<article class="page"><button class="mclose" id="ora-x" type="button" aria-label="Fechar">✕</button><p class="rub">${esc(o.r)}</p><h2>${esc(o.t)}</h2>
+    ${o.partes.map(([t],k)=>`<p class="oratio" data-p="${k}">${esc(t)}</p>`).join("")}
+    <div class="row"><button class="btn red grow" id="ora-ouvir" type="button">Ouvir</button><button class="btn ghost" id="ora-ok" type="button">Rezei</button></div></article>`;
+  el.hidden=false;
+  const fechar=()=>{pararOra();el.hidden=true};
+  $("ora-x").onclick=fechar;
+  $("ora-ok").onclick=()=>{track(x=>{x.outras=x.outras||{};x.outras[id]=(x.outras[id]||0)+1});fechar()};
+  $("ora-ouvir").onclick=()=>{if(oraPlayer){pararOra();return}
+    const fila=[];o.partes.forEach(([,cl],k)=>cl.forEach(c=>fila.push([k,c])));
+    if(!fila.every(([,c])=>AUDIO[c])){$("ora-ouvir").textContent="Áudio ainda carregando…";setTimeout(()=>{const b=$("ora-ouvir");if(b)b.textContent="Ouvir"},1500);return}
+    const my=++oraGen;oraPlayer=new Audio();$("ora-ouvir").textContent="Pausar";$("ora-ouvir").classList.add("on");wake();
+    let n=0;const toca=()=>{if(my!==oraGen)return;if(n>=fila.length){pararOra();unwake();return}
+      const [k,c]=fila[n++];document.querySelectorAll("#ora .oratio").forEach(e=>e.classList.toggle("now",+e.dataset.p===k));
+      const e=document.querySelector(`#ora .oratio[data-p="${k}"]`);if(e)e.scrollIntoView({block:"nearest",behavior:"smooth"});
+      oraPlayer.src=AUDIO[c];oraPlayer.onended=()=>setTimeout(toca,350);oraPlayer.onerror=()=>setTimeout(toca,350);oraPlayer.play().catch(()=>{pararOra()})};
+    toca()};
+  track(x=>{x.abriuOutras=(x.abriuOutras||0)+1})}
+$("outlist").onclick=e=>{const b=e.target.closest("[data-ora]");if(b)abrirOra(b.dataset.ora)};
 function sets(){const day=BY_DAY[today],other=set!==MIS&&set!==day;
   $("sets").innerHTML=`<button id="dayset" class="${set!==MIS?"on":""}" aria-expanded="false" aria-controls="setlist">${other?`Mistérios ${set}`:`Terço do dia · ${day}`} ▾<span class="dur">cerca de 20 min</span></button><button data-s="${MIS}" class="${set===MIS?"on":""}">${MIS}<span class="dur">cerca de 8 min</span></button>
   <div id="setlist" hidden>${Object.keys(M).map(s=>`<button data-s="${s}" class="${s===set?"on":""}">Mistérios ${s}${s===day?" · hoje":""}</button>`).join("")}</div>`}
@@ -430,7 +471,7 @@ function render(){
   if(st.k==="fim")clearProg();
   document.documentElement.classList.toggle("praying",praying());$("next").classList.remove("timing");
   beads(st); renderOffer();
-  $("sets").hidden=praying();$("sair").hidden=!praying();document.querySelector("header").hidden=praying();renderCom();renderLemb();renderResume();
+  $("sets").hidden=praying();if($("outras"))$("outras").hidden=praying()||!window.TERCO_VOZES;$("sair").hidden=!praying();document.querySelector("header").hidden=praying();renderCom();renderLemb();renderResume();
   $("stage").textContent=st.d<0?"Orações iniciais":st.d<5?(set===MIS?`${ORDF[st.d]} dezena · Misericórdia`:`${ORD[st.d]} mistério · ${set}`):"Encerramento";
   $("pct").textContent=Math.round(i/(steps.length-1)*100)+"%";
   $("prev").disabled=i===0;
@@ -580,11 +621,18 @@ function speak(){
    Quando todos os áudios de uma oração existem, o app toca a voz gravada; se faltar algum, usa a voz do celular.
    No modo "Eu respondo", a voz faz a primeira parte e o app espera o tempo da segunda parte em silêncio. */
 const AUDIO={};
+const comLadainha=()=>{try{return localStorage.getItem("terco-ladainha")==="sim"}catch(e){return false}};
+/* Duas vozes gravadas (Thales e Jenifer). A escolha fica guardada no aparelho. */
+function aplicaVoz(v){const V=window.TERCO_VOZES;if(!V)return;if(!V[v])v="thales";
+  Object.keys(AUDIO).forEach(k=>delete AUDIO[k]);Object.assign(AUDIO,V[v].clips);Object.assign(SPLIT_T,V[v].split||{});
+  $("vgrav").value=v;try{localStorage.setItem("terco-voz",v)}catch(e){}}
 /* Segundo em que a voz gravada chega à segunda metade ("desceu à mansão dos mortos" e "Eia, pois, advogada nossa") */
 const SPLIT_T={creio:20.3,"salve-rainha":15.8};
 /* Os áudios gravados chegam num arquivo à parte, para a página abrir rápido; enquanto não carregam, vale a voz do celular. */
 (()=>{const sc=document.createElement("script");sc.src="audio-data.js";sc.async=true;
-  sc.onload=()=>{Object.assign(AUDIO,window.TERCO_AUDIO||{});if(Object.keys(AUDIO).length)$("ahint").textContent="Voz gravada nas orações. Nos mistérios, por enquanto, a leitura fica na tela em silêncio. Com o áudio ligado, o terço avança sozinho e a tela não apaga."};
+  sc.onload=()=>{if(window.TERCO_VOZES){let v="thales";try{v=localStorage.getItem("terco-voz")||"thales"}catch(e){}aplicaVoz(v);$("vgrav").hidden=false;renderOutras();
+      $("ahint").textContent="Voz gravada em todo o terço, inclusive nos mistérios. Com o áudio ligado, o terço avança sozinho e a tela não apaga."}
+    else{Object.assign(AUDIO,window.TERCO_AUDIO||{});if(Object.keys(AUDIO).length)$("ahint").textContent="Voz gravada nas orações. Nos mistérios, por enquanto, a leitura fica na tela em silêncio. Com o áudio ligado, o terço avança sozinho e a tela não apaga."}};
   document.head.appendChild(sc)})();
 const player=new Audio();player.preload="auto";
 let waitT=null,waitOn=false;
@@ -605,6 +653,7 @@ function clipsFor(st){const pre={Gozosos:"gozo",Luminosos:"lumi",Dolorosos:"dolo
     case"anuncio":return[`${pre}-${st.d+1}-anuncio`,...(modeOf()==="pass"?[`${pre}-${st.d+1}-passagem`]:[])];
     case"eterno":return["eterno-pai"];case"paixao":return["pela-sua-dolorosa-paixao"];
     case"santo":return["deus-santo"];case"confio":return["jesus-eu-confio"];
+    case"lad1":return["ladainha-1"];case"lad2":return["ladainha-2"];case"lad3":return["ladainha-3"];case"lad4":return["ladainha-4"];
     case"fim":return["encerramento"]}
   return[]}
 const hasClips=list=>list.length>0&&list.every(c=>AUDIO[typeof c==="string"?c:c.wait]);
@@ -634,6 +683,10 @@ function advanceAfter(my,st,read){
   if(!read&&steps[i]&&steps[i].half===0&&steps[i+1]&&steps[i+1].k===steps[i].k)i++;
   if(i<steps.length-1){i++;render();speak()}},read?readMs(st):st.k==="anuncio"?(modeOf()==="pass"?3500:9000):700)}
 try{const r=localStorage.getItem("terco-resp");if(r)$("resp").value=r}catch(e){}
+$("vgrav").onchange=()=>{aplicaVoz($("vgrav").value);track(x=>{x.voz=$("vgrav").value});if(listening)speak()};
+try{if(comLadainha())$("ladopt").value="sim"}catch(e){}
+$("ladopt").onchange=()=>{try{localStorage.setItem("terco-ladainha",$("ladopt").value)}catch(e){}track(x=>{x.ladainha=$("ladopt").value});
+  if(!praying()){build();render()}else $("ahint").textContent=$("ladopt").value==="sim"?"A Ladainha entra a partir do próximo terço.":"A Ladainha sai a partir do próximo terço."};
 $("resp").onchange=()=>{try{localStorage.setItem("terco-resp",$("resp").value)}catch(e){}track(x=>{x.resp=$("resp").value})};
 
 /* Tela acesa enquanto o áudio toca */
@@ -1113,7 +1166,7 @@ async function renderPainel(){
 }
 
 $("day").textContent=`${DAYS[today]} · Mistérios ${BY_DAY[today]}`;
-restart();
+restart();renderOutras();
 </script>
 <script src="boas-vindas.js"></script>
 <script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
