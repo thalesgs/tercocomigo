@@ -171,6 +171,8 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.95rem;color:var(--in
 /* O cartão da oração não rola: se o texto não couber, a letra diminui um pouco até caber dentro da moldura */
 .page.prayer{max-height:min(54vh,560px);overflow:hidden}
 /* Rezando: a tela fica do tamanho do celular. Nada de puxar a página; se a oração não couber, só o texto rola dentro da moldura */
+/* Sem zoom por toque duplo (o gesto de pinça continua para quem precisa ampliar) */
+html,body,button,a,.page,select,label{touch-action:manipulation}
 html.praying,html.praying body{overflow:hidden;overscroll-behavior:none}
 html.praying .app{min-height:0;height:100%;box-sizing:border-box;padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
 html.praying nav.tabs{display:none}
